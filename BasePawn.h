@@ -14,6 +14,9 @@ class TOONTANKS_API ABasePawn : public APawn
 public:
 	// Sets default values for this pawn's properties
 	ABasePawn();
+
+	//Hello github
+	FString github = "Hello GitHub";
 	
 	UPROPERTY(VisibleAnywhere)
 	int32 VisibleAnywhereInt = 12;
