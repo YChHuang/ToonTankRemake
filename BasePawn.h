@@ -18,34 +18,47 @@ public:
 	//Hello github
 	FString github = "Hello GitHub";
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int32 VisibleAnywhereInt = 12;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 EditAnywhereInt = 22;
 
 	UPROPERTY(VisibleInstanceOnly)
 	int32 VisibleInstanceOnlyInt = 11;
 
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	int Atk = 0;
+
+	UPROPERTY(VisibleDefaultsOnly)
+	int32 VisibleDefaultOnlyINT = 5;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 EditDefaultOnlyINT = 9;
+
+	UPROPERTY(EditInstanceOnly)
+	int32 EditInstanceOnlyINT = 14;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
 	class UCapsuleComponent* CapsuleComp;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* BaseMesh;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* TurretMesh;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* ProjectileSpawnPoint;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite,Category = "Super Duper Var", meta = (AllowPrivateAccess = "true"))
+	int32 VisibleAnywhereInPrivateInt = 78;
 
 public:	
 	// Called every frame
