@@ -2,6 +2,7 @@
 
 
 #include "FireProjectTile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
 AFireProjectTile::AFireProjectTile()
@@ -11,6 +12,10 @@ AFireProjectTile::AFireProjectTile()
 
 	ProjectTileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectTileMesh"));
 	RootComponent = ProjectTileMesh;
+
+	ProjectileMovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectTileMoveComp"));
+	ProjectileMovementComp->MaxSpeed = 1500.f;
+	ProjectileMovementComp->InitialSpeed = 1500.f;
 
 
 }
@@ -26,6 +31,5 @@ void AFireProjectTile::BeginPlay()
 void AFireProjectTile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

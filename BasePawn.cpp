@@ -3,6 +3,7 @@
 #include "BasePawn.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "FireProjectTile.h"
 
 
 // Sets default values
@@ -42,14 +43,10 @@ void ABasePawn::RotateTurret(FVector LookAtTarget)
 
 void ABasePawn::Fire()
 {
-	DrawDebugSphere(
-		GetWorld(),
+	GetWorld()->SpawnActor<AFireProjectTile>(
+		ProjecttileClass,
 		ProjectileSpawnPoint->GetComponentLocation(),
-		10.f,
-		12,
-		FColor::Green,
-		false,
-		3.f
+		ProjectileSpawnPoint->GetComponentRotation()
 	);
 }
 
