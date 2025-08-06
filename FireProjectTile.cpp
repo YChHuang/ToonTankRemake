@@ -24,6 +24,8 @@ AFireProjectTile::AFireProjectTile()
 void AFireProjectTile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ProjectTileMesh->OnComponentHit.AddDynamic(this, &AFireProjectTile::OnHit);
 	
 }
 
@@ -31,5 +33,12 @@ void AFireProjectTile::BeginPlay()
 void AFireProjectTile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AFireProjectTile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UE_LOG(LogTemp, Warning, TEXT("HitComponent is %s"), *HitComp->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("OtherActor is %s"), *OtherActor->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("OtherComp is %s"), *OtherComp->GetName());
 }
 
