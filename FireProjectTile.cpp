@@ -3,6 +3,8 @@
 
 #include "FireProjectTile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GameFramework/DamageType.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AFireProjectTile::AFireProjectTile()
@@ -37,8 +39,16 @@ void AFireProjectTile::Tick(float DeltaTime)
 
 void AFireProjectTile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("HitComponent is %s"), *HitComp->GetName());
-	UE_LOG(LogTemp, Warning, TEXT("OtherActor is %s"), *OtherActor->GetName());
-	UE_LOG(LogTemp, Warning, TEXT("OtherComp is %s"), *OtherComp->GetName());
+	auto MyOwner = GetOwner();
+	if (MyOwner == nullptr) return;
+
+	auto MyOwnerInstigator = MyOwner->GetInstigatorController();
+	auto DamageTypeClass = UDamageType::StaticClass();
+
+	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
+	{
+		UGameplayStatics::ApplyDamage(OtherActor, Damage, MyOwnerInstigator, this, DamageTypeClass);
+		Destroy();
+	}
 }
 
