@@ -27,7 +27,9 @@ private:
 	float Health = 0.f;
 
 	UFUNCTION()
-	void Damagetaken(AActor* DamagedAcotr, float Damage, const UDamageType* DamageType, AController* Instigator, AActor* DamageCauser);
+	void Damagetaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* Instigator, AActor* DamageCauser);
+
+	class AToonTanksGameModeBase* ToonTanksGameModeBase;
 
 public:	
 	// Called every frame
