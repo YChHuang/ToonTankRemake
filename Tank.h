@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "BasePawn.h"
+#include "InputAction.h"
 #include "Tank.generated.h"
+
 
 /**
  * 
@@ -27,9 +29,22 @@ public:
 
 	APlayerController* GetTankPlayerController() const { return TankPlayerController; }
 
+	bool bAlive = true;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputMappingContext* TankMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* MoveAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* FireAction;
+
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -38,9 +53,11 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class UCameraComponent* CameraComp;
 
-	void Move(float Value);
+	
+	void Move(const FInputActionValue& inValue);
 
-	void Turn(float Value);
+	void Turn(const FInputActionValue& inValue);
+
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float Speed = 400.f;

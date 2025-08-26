@@ -44,7 +44,6 @@ void UHealthcomponent::Damagetaken(AActor* DamagedActor, float Damage, const UDa
 	if (Damage <= 0.f) return;
 
 	Health -= Damage;
-	UE_LOG(LogTemp, Warning, TEXT("Health : %f"), Health);
 	if (Health <= 0.f && ToonTanksGameModeBase)
 	{
 		ToonTanksGameModeBase->ActorDied(DamagedActor);

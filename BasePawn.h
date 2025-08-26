@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "InputAction.h"
 #include "BasePawn.generated.h"
 
 UCLASS()
@@ -23,6 +24,12 @@ protected:
 	
 	void Fire();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* TurretMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* MoveTurn;
+
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
@@ -31,8 +38,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* BaseMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* TurretMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* ProjectileSpawnPoint;
@@ -48,5 +53,5 @@ private:
 
 	UPROPERTY(EditAnyWhere, Category = "Combat")
 	TSubclassOf<class UCameraShakeBase> DeathCameraShakeClass;
-
+ 
 };

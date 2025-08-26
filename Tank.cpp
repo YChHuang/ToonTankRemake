@@ -6,6 +6,10 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputMappingContext.h"
+#include "EnhancedInputComponent.h"
+#include "InputAction.h"
 
 
 
@@ -26,15 +30,34 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ATank::Move);
-	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ATank::Turn);
-	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ATank::Fire);
+
+	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+
+	if (EnhancedInputComponent) 
+	{
+		if (MoveAction && MoveTurn)
+		{
+			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATank::Move);
+			EnhancedInputComponent->BindAction(MoveTurn, ETriggerEvent::Triggered, this, &ATank::Turn);
+		}
+
+		if (FireAction)
+		{
+			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ATank::Fire);
+		}
+	}
+
+	//old input from tutorial
+	//PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ATank::Move);
+	//PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ATank::Turn);
+	//PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ATank::Fire);
 }
 
 void ATank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//sweaptarget that gonna fire to
 	if (TankPlayerController)
 	{
 		FHitResult HitResult;
@@ -53,6 +76,7 @@ void ATank::HandleDestruction()
 	Super::HandleDestruction();
 	SetActorHiddenInGame(true);
 	SetActorTickEnabled(false);
+	bAlive = false;
 }
 
 
@@ -63,25 +87,39 @@ void ATank::BeginPlay()
 
 	TankPlayerController = Cast<APlayerController>(GetController());
 	
+	if (TankPlayerController)
+	{
+		UEnhancedInputLocalPlayerSubsystem* Subsystem =
+			ULocalPlayer::GetSubsystem< UEnhancedInputLocalPlayerSubsystem>(
+				TankPlayerController->GetLocalPlayer()
+			);
+		if (Subsystem)
+		{
+			Subsystem->AddMappingContext(TankMappingContext, 0);
+		}
+	}
+
+	
 }
 
 
-void ATank::Move(float Value)
+void ATank::Move(const FInputActionValue& inValue)
 {
-	//UE_LOG(LogTemp, Display, TEXT("MoveForward input the value is : %f"), Value);
-	FVector DeltaLocation = FVector::ZeroVector;
-	// X = Value * DeltaTime * Speed
-	//UE_LOG(LogTemp, Display, TEXT("DeltaTime is : %f"), DeltaTime);
+	float InputValue = inValue.Get<float>();
 
-	DeltaLocation.X = Value * Speed * UGameplayStatics::GetWorldDeltaSeconds(this);
+
+	FVector DeltaLocation = FVector::ZeroVector;
+	DeltaLocation.X = InputValue * Speed * UGameplayStatics::GetWorldDeltaSeconds(this);
 	AddActorLocalOffset(DeltaLocation, true);
 
 }
 
-void ATank::Turn(float Value)
+void ATank::Turn(const FInputActionValue& inValue)
 {
+	float InputValue = inValue.Get<float>();
 	FRotator DeltaRotation = FRotator::ZeroRotator;
 	//Yaw = Value * Deltatime * TurnRate
-	DeltaRotation.Yaw = Value * TurnRate * UGameplayStatics::GetWorldDeltaSeconds(this);
+	DeltaRotation.Yaw = InputValue * TurnRate * UGameplayStatics::GetWorldDeltaSeconds(this);
 	AddActorLocalRotation(DeltaRotation, true);
 }
+
