@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/HitResult.h"
 #include "SpawnManager.h"
+#include "BasePawn.h"
 
 
 // Sets default values
@@ -20,35 +21,19 @@ AEnemySpawner::AEnemySpawner()
 void AEnemySpawner::DisableSpawn()
 {
     //Disable the timer which continue spawn actor
-    if (GetWorld()->GetTimerManager().IsTimerActive(SpawnTimer))
-    {
-        UE_LOG(LogTemp, Warning, TEXT("DisableSpawning"));
-        GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("SpawnTimer not active"));
-    }
+    //if (GetWorld()->GetTimerManager().IsTimerActive(SpawnTimer))
+    //{
+    //    UE_LOG(LogTemp, Warning, TEXT("DisableSpawning"));
+    //    GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
+    //}
+    //else
+    //{
+    //    UE_LOG(LogTemp, Warning, TEXT("SpawnTimer not active"));
+    //}
     
 }
 
-void AEnemySpawner::SetSpawnEnable(bool bEnable)
-{
-    SpawnEnable = bEnable;
-    if (bEnable)
-    {
-        if (!GetWorld()->GetTimerManager().IsTimerActive(SpawnTimer))
-        {
-            GetWorld()->GetTimerManager().SetTimer(SpawnTimer, this, &AEnemySpawner::SpawnEnemy, SpawnInterval, true);
-        }
-    }
-    else
-    {
-        GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
 
-    }
-    
-}
 
 // Called when the game starts or when spawned
 void AEnemySpawner::BeginPlay()
@@ -72,10 +57,10 @@ void AEnemySpawner::Tick(float DeltaTime)
 }
 
 
-void AEnemySpawner::SpawnEnemy()
+ABasePawn* AEnemySpawner::SpawnEnemy()
 {
     //spawn tower
-    if (!EnemyClass) return;
+    if (!EnemyClass) return nullptr;
 
     //UE_LOG(LogTemp, Warning, TEXT("Heights = %f"), GetActorLocation().Z);
 
@@ -101,13 +86,13 @@ void AEnemySpawner::SpawnEnemy()
 
     ATower* SpawnedEnemy = GetWorld()->SpawnActor<ATower>(EnemyClass, SpawnLocation, SpawnRotation);
 
-    if (SpawnedEnemy && spawnCount)
+    if (SpawnedEnemy)
     {
         GetWorld()->SpawnActor<ATower>(EnemyClass, SpawnLocation, SpawnRotation);
-        GameModeBase->addTower();
-        spawnCount--;
+        return SpawnedEnemy;
     }
 
+    return nullptr;
     
 
 }

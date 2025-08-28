@@ -35,18 +35,9 @@ void AToonTanksGameModeBase::ActorDied(AActor* DeadActor)
 void AToonTanksGameModeBase::addTower()
 {
 	TargetTowers++;//Adding Tower count
+	UE_LOG(LogTemp, Warning, TEXT("Still remain %d Towers!!"), TargetTowers)
 }
 
-//void AToonTanksGameModeBase::RegisterSpawner(AEnemySpawner* Spawner)
-//{
-//	//get the spawner
-//	SpawnerList.Add(Spawner);
-//}
-//
-//void AToonTanksGameModeBase::TowerHasSpawned()
-//{
-//	MaxSpawnCount--;
-//}
 
 void AToonTanksGameModeBase::BeginPlay()
 {
@@ -63,15 +54,6 @@ void AToonTanksGameModeBase::BeginPlay()
 		Manager->StartWave(1); // ŠJ‘æˆê”g
 	}
 
-}
-
-
-void AToonTanksGameModeBase::OnWaveEnd()
-{
-	if (Manager)
-	{
-		Manager->StopAllSpawns();
-	}
 }
 
 

@@ -15,9 +15,9 @@ public:
 	// Sets default values for this actor's properties
 	ASpawnManager();
 	void RegisterSpawner(class AEnemySpawner* Spawner);
-	void SetAllSpawnersEnabled(bool bEnable);
 	void StartWave(int WaveIndex);
-	void StopAllSpawns();
+
+	
 
 	void OnEnemySpawned();
 
@@ -29,9 +29,21 @@ private:
 
 	int AliveEnemyCount = 0;
 
+	FTimerHandle SpawnTimerHandle;
+
+	void SpawnTick();
+
+	int RemainingSpawns = 0;
+
+	class AToonTanksGameModeBase* GameMode;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere)
+	float SpawnInterval = 5.0f;
+
 
 public:	
 	// Called every frame

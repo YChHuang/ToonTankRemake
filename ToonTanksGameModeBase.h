@@ -33,7 +33,6 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void OnWaveEnd();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartGame();

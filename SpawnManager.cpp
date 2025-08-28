@@ -1,8 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SpawnManager.h"
 #include "EnemySpawner.h"
+#include "BasePawn.h"
+#include "ToonTanksGameModeBase.h"
 
 // Sets default values
 ASpawnManager::ASpawnManager()
@@ -16,6 +18,14 @@ ASpawnManager::ASpawnManager()
 void ASpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
+
+    GameMode = Cast<AToonTanksGameModeBase>(GetWorld()->GetAuthGameMode());
+
+    if (GameMode)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Manager get gamemode!!"));
+    }
+
 	
 }
 
@@ -34,28 +44,55 @@ void ASpawnManager::RegisterSpawner(AEnemySpawner* Spawner)
     }
 }
 
-void ASpawnManager::SetAllSpawnersEnabled(bool bEnable)
-{
-    for (auto* Spawner : SpawnerList)//notice that can be spawn
-    {
-        if (Spawner)
-        {
-            Spawner->SetSpawnEnable(bEnable);
-        }
-    }
-}
+
 
 void ASpawnManager::StartWave(int WaveIndex)
 {
     CurrentWave = WaveIndex;
-    UE_LOG(LogTemp, Warning, TEXT("Wave %d"), CurrentWave)
-    SetAllSpawnersEnabled(true);
+    //TODO:可以讓變數修改
+    RemainingSpawns = 5;
+    UE_LOG(LogTemp, Warning, TEXT("Wave %d ganna spawn %d enemys!!"), CurrentWave , RemainingSpawns)
+ 
+    GetWorldTimerManager().SetTimer(
+        SpawnTimerHandle,
+        this,
+        &ASpawnManager::SpawnTick,
+        SpawnInterval,
+        true
+    );
+
 }
 
-void ASpawnManager::StopAllSpawns()
+void ASpawnManager::SpawnTick()
 {
-    SetAllSpawnersEnabled(false);
+    if (RemainingSpawns > 0)
+    {
+        // 這裡可以選擇哪個 Spawner 要生怪（隨機 / 輪流）
+        //RequestSpawn(ChooseSpawner());
+
+        if (SpawnerList.Num() > 0)
+        {
+            AEnemySpawner* Spawner = SpawnerList[0];
+            if (Spawner)
+            {
+                ABasePawn* basePawn = Spawner->SpawnEnemy();
+                if (GameMode && basePawn)
+                {
+                    GameMode->addTower();
+                    RemainingSpawns--;
+                    UE_LOG(LogTemp, Warning, TEXT("Remian %d enemy will be spawn"), RemainingSpawns);
+                }
+            }
+        }
+        
+    }
+    else
+    {
+        // 生完了就停 Timer
+        GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+    }
 }
+
 
 void ASpawnManager::OnEnemySpawned()
 {

@@ -16,7 +16,9 @@ public:
 	AEnemySpawner();
 
 	void DisableSpawn();
-	void SetSpawnEnable(bool bEnable);
+
+	class ABasePawn* SpawnEnemy();
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -25,15 +27,13 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ATower> EnemyClass;
 
-	UPROPERTY(EditAnywhere)
-	float SpawnInterval = 5.0f;
+
 
 	UPROPERTY(EditAnywhere)
 	int32 MaxEnemies = 10;
 
-	FTimerHandle SpawnTimer;
 
-	void SpawnEnemy();
+	
 
 private:
 	class AToonTanksGameModeBase* GameModeBase;
@@ -45,6 +45,8 @@ private:
 	class ASpawnManager* Manager;
 
 	int spawnCount = 5;
+
+	
 
 public:	
 	// Called every frame
