@@ -25,6 +25,7 @@ ABasePawn::ABasePawn()
 	ProjectileSpawnPoint->SetupAttachment(TurretMesh);
 }
 
+
 void ABasePawn::HandleDestruction()
 {
 
@@ -42,6 +43,16 @@ void ABasePawn::HandleDestruction()
 		GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(DeathCameraShakeClass);
 	}
 }
+
+const UCapsuleComponent* ABasePawn::GetCapsule() const
+{
+	//Need capsule to get half height when spawning a tower
+
+	if (!CapsuleComp) return nullptr;
+	return CapsuleComp;
+}
+
+
 
 void ABasePawn::RotateTurret(FVector LookAtTarget)
 {

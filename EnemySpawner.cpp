@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "EnemySpawner.h"
@@ -8,6 +8,7 @@
 #include "Engine/HitResult.h"
 #include "SpawnManager.h"
 #include "BasePawn.h"
+#include "Components/CapsuleComponent.h"
 
 
 // Sets default values
@@ -61,38 +62,51 @@ ABasePawn* AEnemySpawner::SpawnEnemy()
 {
     //spawn tower
     if (!EnemyClass) return nullptr;
-
-    //UE_LOG(LogTemp, Warning, TEXT("Heights = %f"), GetActorLocation().Z);
-
+    
+    FVector SpawnLocation = GetSpawnLocation();
+    SpawnLocation.Z += GetCapsuleHeightOffset(EnemyClass);
+    
     FRotator SpawnRotation = FRotator::ZeroRotator;
+    ATower* SpawnedEnemy = GetWorld()->SpawnActor<ATower>(EnemyClass, SpawnLocation, SpawnRotation);
+    return SpawnedEnemy;
+}
 
-    //sweap floor to spawn
+
+
+FVector AEnemySpawner::GetSpawnLocation()
+{
     FVector Origin = GetActorLocation();
-    float curHeight = Origin.Z;
     FVector RandomOffset = FVector(FMath::FRandRange(-500.f, 500.f), FMath::FRandRange(-500.f, 500.f), 0.f);
-    FVector TraceStart = Origin + RandomOffset + FVector(0.f, 0.f, curHeight);
-    FVector TraceEnd = Origin + RandomOffset - FVector(0.f, 0.f, curHeight + 500);
-
+    FVector TraceStart = Origin + RandomOffset + FVector(0.f, 0.f, 0);
+    FVector TraceEnd = Origin + RandomOffset - FVector(0.f, 0.f, 0 + 500);
     FHitResult Hit;
 
-    float HeightOffset = 85;
-
-    FVector SpawnLocation;
     if (GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Visibility))
     {
-        SpawnLocation = Hit.Location;
-        SpawnLocation.Z += HeightOffset;
+        return Hit.Location;
     }
-
-    ATower* SpawnedEnemy = GetWorld()->SpawnActor<ATower>(EnemyClass, SpawnLocation, SpawnRotation);
-
-    if (SpawnedEnemy)
-    {
-        GetWorld()->SpawnActor<ATower>(EnemyClass, SpawnLocation, SpawnRotation);
-        return SpawnedEnemy;
-    }
-
-    return nullptr;
-    
-
+    return Origin + RandomOffset;
 }
+
+float AEnemySpawner::GetCapsuleHeightOffset(TSubclassOf<ABasePawn> Class)
+{
+    FTransform SpawnTransform;
+    ABasePawn* TempActor = GetWorld()->SpawnActorDeferred<ABasePawn>(Class, SpawnTransform);
+
+    float HeightOffset = 1;
+    if (TempActor)
+    {
+        UGameplayStatics::FinishSpawningActor(TempActor, SpawnTransform);
+        //UCapsuleComponent* GetCapsule()
+        const UCapsuleComponent* capsul = TempActor->GetCapsule();
+        float capsuleHeight = 0;
+        if (capsul)
+        {
+            capsuleHeight = capsul->GetScaledCapsuleHalfHeight();
+        }
+        HeightOffset += capsuleHeight;
+        TempActor->Destroy();
+    }
+    return HeightOffset;
+}
+

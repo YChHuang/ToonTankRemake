@@ -20,7 +20,8 @@ public:
 
 	void ActorDied(AActor* DeadActor);
 
-	void addTower();
+	void addTower(int amount);
+
 
 	void TowerHasSpawned();
 
@@ -56,7 +57,7 @@ private:
 	
 	int GetTargetTowerCount();
 
-	
+	int RemainingSpawns = 0;
 	
 
 };

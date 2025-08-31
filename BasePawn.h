@@ -18,7 +18,10 @@ public:
 
 	void HandleDestruction();
 
+	const class UCapsuleComponent* GetCapsule() const;
+
 protected:
+
 
 	void RotateTurret(FVector LookAtTarget);
 	
@@ -29,11 +32,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* MoveTurn;
+	float CapsuleHalfHeight = 0;
 
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
-	class UCapsuleComponent* CapsuleComp;
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* BaseMesh;
@@ -53,5 +56,8 @@ private:
 
 	UPROPERTY(EditAnyWhere, Category = "Combat")
 	TSubclassOf<class UCameraShakeBase> DeathCameraShakeClass;
- 
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
+	class UCapsuleComponent* CapsuleComp;
 };

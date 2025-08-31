@@ -24,19 +24,22 @@ void AToonTanksGameModeBase::ActorDied(AActor* DeadActor)
 	{
 		DestroyedTower->HandleDestruciton();
 		--TargetTowers;
-		//Won condition : towers that is already in world is zero and will not spawn any tower
-		if (TargetTowers == 0)
+		
+		//Won condition : No Towers remain and no more towers will spawn
+		if (TargetTowers == 0 && RemainingSpawns == 0)
 		{
 			GameOver(true);
 		}
 	}
 }
 
-void AToonTanksGameModeBase::addTower()
+void AToonTanksGameModeBase::addTower(int amount)
 {
-	TargetTowers++;//Adding Tower count
-	UE_LOG(LogTemp, Warning, TEXT("Still remain %d Towers!!"), TargetTowers)
+	TargetTowers += amount;//Adding Tower spawn count
+	
+	//UE_LOG(LogTemp, Warning, TEXT("Still remain %d Towers!!"), TargetTowers)
 }
+
 
 
 void AToonTanksGameModeBase::BeginPlay()

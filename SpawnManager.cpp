@@ -51,8 +51,8 @@ void ASpawnManager::StartWave(int WaveIndex)
     CurrentWave = WaveIndex;
     //TODO:可以讓變數修改
     RemainingSpawns = 5;
-    UE_LOG(LogTemp, Warning, TEXT("Wave %d ganna spawn %d enemys!!"), CurrentWave , RemainingSpawns)
- 
+    UE_LOG(LogTemp, Warning, TEXT("Wave %d ganna spawn %d enemys!!"), CurrentWave, RemainingSpawns)
+    GameMode->addTower(5);
     GetWorldTimerManager().SetTimer(
         SpawnTimerHandle,
         this,
@@ -76,9 +76,9 @@ void ASpawnManager::SpawnTick()
             if (Spawner)
             {
                 ABasePawn* basePawn = Spawner->SpawnEnemy();
-                if (GameMode && basePawn)
+                if (basePawn)
                 {
-                    GameMode->addTower();
+                    
                     RemainingSpawns--;
                     UE_LOG(LogTemp, Warning, TEXT("Remian %d enemy will be spawn"), RemainingSpawns);
                 }

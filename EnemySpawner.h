@@ -19,6 +19,8 @@ public:
 
 	class ABasePawn* SpawnEnemy();
 
+	
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -46,7 +48,9 @@ private:
 
 	int spawnCount = 5;
 
-	
+	FVector GetSpawnLocation();
+
+	float GetCapsuleHeightOffset(TSubclassOf<ABasePawn> Class);
 
 public:	
 	// Called every frame
