@@ -42,8 +42,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputAction* MoveAction;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* LookAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* FireAction;
+
 
 
 private:
@@ -57,6 +62,21 @@ private:
 	void Move(const FInputActionValue& inValue);
 
 	void Turn(const FInputActionValue& inValue);
+
+	bool GetAimingPoint(FVector& OutPoint) const;
+
+	void OnLook(const FInputActionValue& Value);
+
+	float ViewportCenterX = 0.f;
+
+	float ViewportCenterY = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	float AimSensitivity = 1000.f;
+	
+	bool bHasGamepadInput = false;
+
+	FVector CachedGamepadAimPoint;
 
 
 	UPROPERTY(EditAnywhere, Category = "Movement")

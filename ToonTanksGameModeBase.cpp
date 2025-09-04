@@ -8,6 +8,7 @@
 #include "ToonTanksPlayerController.h"
 #include "EnemySpawner.h"
 #include "SpawnManager.h"
+#include "GameFramework/PlayerController.h"
 
 void AToonTanksGameModeBase::ActorDied(AActor* DeadActor)
 {
@@ -65,6 +66,7 @@ void AToonTanksGameModeBase::HandleGameStart()
 	TargetTowers = GetTargetTowerCount();
 	Tank = Cast<ATank>(UGameplayStatics::GetPlayerPawn(this, 0));
 	ToonTanksPlayerController = Cast<AToonTanksPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
 
 	StartGame();
 

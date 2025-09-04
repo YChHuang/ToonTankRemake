@@ -23,7 +23,7 @@ public:
 protected:
 
 
-	void RotateTurret(FVector LookAtTarget);
+	void RotateTurret(const FInputActionValue& Value);
 	
 	void Fire();
 

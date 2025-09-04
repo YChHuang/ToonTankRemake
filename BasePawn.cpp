@@ -19,7 +19,7 @@ ABasePawn::ABasePawn()
 	BaseMesh->SetupAttachment(CapsuleComp);
 
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turrent Mesh"));
-	TurretMesh->SetupAttachment(BaseMesh);
+	TurretMesh->SetupAttachment(CapsuleComp);
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Projectile SpawnPoint"));
 	ProjectileSpawnPoint->SetupAttachment(TurretMesh);
@@ -54,21 +54,18 @@ const UCapsuleComponent* ABasePawn::GetCapsule() const
 
 
 
-void ABasePawn::RotateTurret(FVector LookAtTarget)
+void ABasePawn::RotateTurret(const FInputActionValue& Value)
 {
-	FVector ToTarget = LookAtTarget - TurretMesh->GetComponentLocation();
-	FRotator LookAtRotation = FRotator(0.f, ToTarget.Rotation().Yaw, 0.f);
-	//Or just trans to Rotator than set Pitch and Roll to 0
-	//LookAtRotation.Pitch = 0.f;
-	//LookAtRotation.Roll = 0.f;
+	float LookInput = Value.Get<float>();
+	float Sensitivity = 100.f; // degrees per second
 
-	TurretMesh->SetWorldRotation(FMath::RInterpTo(
-		TurretMesh->GetComponentRotation(),
-		LookAtRotation,
-		UGameplayStatics::GetWorldDeltaSeconds(this),
-		15.f)
-	);
-	
+	float DeltaYaw = LookInput * Sensitivity * UGameplayStatics::GetWorldDeltaSeconds(this);
+
+	FRotator CurrentRotation = TurretMesh->GetComponentRotation();
+	CurrentRotation.Yaw += DeltaYaw;
+
+	TurretMesh->SetWorldRotation(CurrentRotation);
+
 }
 
 void ABasePawn::Fire()

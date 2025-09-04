@@ -19,7 +19,7 @@ ATank::ATank()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->SetupAttachment(TurretMesh);
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComp->SetupAttachment(SpringArmComp);
@@ -45,6 +45,12 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		{
 			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ATank::Fire);
 		}
+
+		if (LookAction)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Find IA_Look!!"));
+			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATank::RotateTurret);
+		}
 	}
 
 	//old input from tutorial
@@ -58,17 +64,24 @@ void ATank::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	//sweaptarget that gonna fire to
-	if (TankPlayerController)
-	{
-		FHitResult HitResult;
-		TankPlayerController->GetHitResultUnderCursor(
-			ECollisionChannel::ECC_Visibility,
-			false,
-			HitResult
-		);
+	//if (TankPlayerController)
+	//{
+	//	FHitResult HitResult;
+	//	TankPlayerController->GetHitResultUnderCursor(
+	//		ECollisionChannel::ECC_Visibility,
+	//		false,
+	//		HitResult
+	//	);
 
-		RotateTurret(HitResult.ImpactPoint);
-	}
+
+	//FVector AimPoint;
+	//if (GetAimingPoint(AimPoint))
+	//{
+	//	RotateTurret(AimPoint);
+	//}
+
+
+	//RotateTurret(AimPoint);
 }
 
 void ATank::HandleDestruction()
@@ -86,9 +99,16 @@ void ATank::BeginPlay()
 	Super::BeginPlay();
 
 	TankPlayerController = Cast<APlayerController>(GetController());
+
 	
 	if (TankPlayerController)
 	{
+		int32 ViewportSizeX, ViewportSizeY;
+		TankPlayerController->GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+		ViewportCenterX = ViewportSizeX / 2.0f;
+		ViewportCenterY = ViewportSizeY / 2.0f - 250.f;
+
 		UEnhancedInputLocalPlayerSubsystem* Subsystem =
 			ULocalPlayer::GetSubsystem< UEnhancedInputLocalPlayerSubsystem>(
 				TankPlayerController->GetLocalPlayer()
@@ -123,3 +143,60 @@ void ATank::Turn(const FInputActionValue& inValue)
 	AddActorLocalRotation(DeltaRotation, true);
 }
 
+bool ATank::GetAimingPoint(FVector& OutPoint) const
+{
+
+	if (bHasGamepadInput) // ”VŒã‰ä˜ì˜ðÝ”‡ŒÂŠø•W
+	{
+		OutPoint = CachedGamepadAimPoint;
+		return true;
+	}
+	else if (TankPlayerController)
+	{
+		FHitResult HitResult;
+		TankPlayerController->GetHitResultUnderCursor(
+			ECollisionChannel::ECC_Visibility,
+			false,
+			HitResult
+		);
+		OutPoint = HitResult.ImpactPoint;
+		return true;
+	}
+	//else if (AIController)
+	//{
+	//	OutPoint = AIController->GetTargetLocation();
+	//	return true;
+	//}
+	return false;
+}
+
+void ATank::OnLook(const FInputActionValue& Value)
+{
+	FVector2D LookInput = Value.Get<FVector2D>();
+
+
+	if (!LookInput.IsNearlyZero())
+	{
+		// 1. ”cŠž…•ûŒüçz¬¢ŠE•ûŒü
+		FVector WorldDirection;
+		FVector WorldOrigin;
+		TankPlayerController->DeprojectScreenPositionToWorld(
+			ViewportCenterX + LookInput.X * AimSensitivity,
+			ViewportCenterY - LookInput.Y * AimSensitivity,
+			/*Out*/ WorldOrigin,
+			/*Out*/ WorldDirection
+		);
+
+		// 2. ŽËüžû‘ª
+		FHitResult Hit;
+		FVector Start = WorldOrigin;
+		FVector End = Start + WorldDirection * 100000.f;
+		if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility))
+		{
+			
+			CachedGamepadAimPoint = Hit.ImpactPoint;
+			UE_LOG(LogTemp, Warning, TEXT("HasGamePadInput"))
+			bHasGamepadInput = true;
+		}
+	}
+}
