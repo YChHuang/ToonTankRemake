@@ -2,9 +2,10 @@
 
 
 #include "Tower.h"
-#include "Tank.h"
-#include "Kismet/GameplayStatics.h"
-#include "GameFramework/Actor.h"
+//#include "Tank.h"
+////#include "Kismet/GameplayStatics.h"
+//#include "GameFramework/Actor.h"
+#include "AIController.h"
 
 
 void ATower::Tick(float DeltaTime)
@@ -12,10 +13,10 @@ void ATower::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	if (InFireRange())
-	{
-		RotateTurret(Tank->GetActorLocation());
-	}
+	//if (InFireRange())
+	//{
+	//	RotateTurret(Tank->GetActorLocation());
+	//}
 }
 
 void ATower::HandleDestruciton()
@@ -28,35 +29,49 @@ void ATower::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Tank = Cast<ATank>(UGameplayStatics::GetPlayerPawn(this, 0));
 
-	GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ATower::CheckFireCondition, FireRate, true);
-}
-
-bool ATower::InFireRange()
-{
-	if (Tank)
+	if (AutoControllerClass)
 	{
-		float Distance = FVector::Dist(GetActorLocation(), Tank->GetActorLocation());
-		// Check to see if the tank is in range
-		if (Distance < FireRange)
+
+		//UE_LOG(LogTemp, Display, TEXT("Get controller"));
+		AAIController* AIController = GetWorld()->SpawnActor<AAIController>(AutoControllerClass);
+		if (AIController)
 		{
-			// if in rnage, rotate turret toward tank
-			return true;
+			AIController->Possess(this);
 		}
 
 	}
-	return false;
+
+
+	//Tank = Cast<ATank>(UGameplayStatics::GetPlayerPawn(this, 0));
+
+	//GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ATower::CheckFireCondition, FireRate, true);
 }
 
-void ATower::CheckFireCondition()
-{
-	if (!Tank) 
-	{
-		return;
-	}
-	if (InFireRange() && Tank->bAlive) 
-	{
-		Fire();
-	}
-}
+//bool ATower::InFireRange()
+//{
+//	if (Tank)
+//	{
+//		float Distance = FVector::Dist(GetActorLocation(), Tank->GetActorLocation());
+//		// Check to see if the tank is in range
+//		if (Distance < FireRange)
+//		{
+//			// if in rnage, rotate turret toward tank
+//			return true;
+//		}
+//
+//	}
+//	return false;
+//}
+
+//void ATower::CheckFireCondition()
+//{
+//	if (!Tank) 
+//	{
+//		return;
+//	}
+//	if (InFireRange() && Tank->bAlive) 
+//	{
+//		Fire();
+//	}
+//}

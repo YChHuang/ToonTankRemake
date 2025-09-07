@@ -68,6 +68,15 @@ void ABasePawn::RotateTurret(const FInputActionValue& Value)
 
 }
 
+UStaticMeshComponent* ABasePawn::GetTurret()
+{
+	if (TurretMesh)
+	{
+		return TurretMesh;
+	}
+	return nullptr;
+}
+
 void ABasePawn::Fire()
 {
 
@@ -78,8 +87,4 @@ void ABasePawn::Fire()
 	);
 	Projectile->SetOwner(this);
 }
-
-
-
-
 

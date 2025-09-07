@@ -20,12 +20,14 @@ public:
 
 	const class UCapsuleComponent* GetCapsule() const;
 
+	void RotateTurret(const FInputActionValue& Value);
+
+	UStaticMeshComponent* GetTurret();
+
+	void Fire();
+
 protected:
 
-
-	void RotateTurret(const FInputActionValue& Value);
-	
-	void Fire();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* TurretMesh;

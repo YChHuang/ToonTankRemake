@@ -16,6 +16,8 @@ class TOONTANKS_API ATower : public ABasePawn
 
 public:
 
+
+
 	virtual void Tick(float DeltaTime) override;
 
 	void HandleDestruciton();
@@ -28,13 +30,16 @@ private:
 
 	class ATank* Tank;
 
-	bool InFireRange();
+	//bool InFireRange();
 	
+	// TurretPawn.h
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	TSubclassOf<class AAIController> AutoControllerClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	float FireRange = 600.f;
+	//UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	//float FireRange = 600.f;
 
-	FTimerHandle FireRateTimerHandle;
-	float FireRate = 2.f;
-	void CheckFireCondition();
+	//FTimerHandle FireRateTimerHandle;
+	//float FireRate = 2.f;
+	//void CheckFireCondition();
 };
