@@ -27,7 +27,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class ATower> EnemyClass;
+	TSubclassOf<ABasePawn> EnemyClass;
 
 
 

@@ -23,8 +23,8 @@ public:
 private:
 	bool InFireRange();
 
-	class ATank* Tank;
-	class ATower* Tower;
+	class ABasePawn* Player;
+	ABasePawn* Target;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 
@@ -35,7 +35,7 @@ private:
 	
 	FTimerHandle FireRateTimerHandle;
 
-	float GetYawOffsetToFaceTarget(const UStaticMeshComponent* TowerPtr, const ATank* TankPtr);
+	float GetYawOffsetToFaceTarget(const UStaticMeshComponent* TowerPtr, const ABasePawn* TankPtr);
 	void CheckFireCondition();
 };
 

@@ -41,8 +41,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Spawn")
 	float SpawnInterval = 5.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	int32 SpawnTypeIndex = 0;
 
 
 public:	

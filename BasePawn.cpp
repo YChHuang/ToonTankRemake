@@ -88,3 +88,8 @@ void ABasePawn::Fire()
 	Projectile->SetOwner(this);
 }
 
+bool ABasePawn::isAlive()
+{
+	return bAlive;
+}
+

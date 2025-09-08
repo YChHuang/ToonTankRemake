@@ -72,7 +72,8 @@ void ASpawnManager::SpawnTick()
 
         if (SpawnerList.Num() > 0)
         {
-            AEnemySpawner* Spawner = SpawnerList[0];
+            if (SpawnTypeIndex > SpawnerList.Num() - 1) SpawnTypeIndex = SpawnerList.Num() - 1;
+            AEnemySpawner* Spawner = SpawnerList[SpawnTypeIndex];
             if (Spawner)
             {
                 ABasePawn* basePawn = Spawner->SpawnEnemy();

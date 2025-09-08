@@ -25,6 +25,7 @@ public:
 	UStaticMeshComponent* GetTurret();
 
 	void Fire();
+	bool isAlive();
 
 protected:
 
@@ -35,7 +36,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* MoveTurn;
 	float CapsuleHalfHeight = 0;
+	bool bAlive = true;
 
+	
 
 private:
 

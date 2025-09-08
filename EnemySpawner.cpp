@@ -67,7 +67,7 @@ ABasePawn* AEnemySpawner::SpawnEnemy()
     SpawnLocation.Z += GetCapsuleHeightOffset(EnemyClass);
     
     FRotator SpawnRotation = FRotator::ZeroRotator;
-    ATower* SpawnedEnemy = GetWorld()->SpawnActor<ATower>(EnemyClass, SpawnLocation, SpawnRotation);
+    ABasePawn* SpawnedEnemy = GetWorld()->SpawnActor<ABasePawn>(EnemyClass, SpawnLocation, SpawnRotation);
     return SpawnedEnemy;
 }
 

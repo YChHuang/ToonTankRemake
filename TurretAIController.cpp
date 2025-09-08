@@ -2,9 +2,8 @@
 
 
 #include "TurretAIController.h"
-#include "Tower.h"
 #include "Kismet/GameplayStatics.h"
-#include "Tank.h"
+#include "BasePawn.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/TimerHandle.h"
 
@@ -14,9 +13,8 @@ void ATurretAIController::OnPossess(APawn* InPawn)
     Super::OnPossess(InPawn);
 
     GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ATurretAIController::CheckFireCondition, FireRate, true);
-    Tower = Cast<ATower>(InPawn);
-	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	Tank = Cast<ATank>(PlayerPawn);
+    Target = Cast<ABasePawn>(InPawn);
+	Player = Cast<ABasePawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
     UE_LOG(LogTemp, Warning, TEXT("Hello pawn"))
 
@@ -27,10 +25,10 @@ void ATurretAIController::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
 
     PrimaryActorTick.bCanEverTick = true;
-	if (InFireRange() && Tank && Tower && Tower->GetTurret())
+	if (InFireRange() && Player && Target && Target->GetTurret())
 	{
         
-        float YawOffset = GetYawOffsetToFaceTarget(Tower->GetTurret(), Tank);
+        float YawOffset = GetYawOffsetToFaceTarget(Target->GetTurret(), Player);
         //LimitRotation
         const float AimTolerance = 1.f;
         //speed degree/sec
@@ -46,7 +44,7 @@ void ATurretAIController::Tick(float DeltaSeconds)
             // ŒÀ§ùçz—ÊC”ð–ÆuŠÔ’µçz
             float Step = FMath::Clamp(YawOffset, -MaxStep, MaxStep);
 
-            Tower->RotateTurret(Step);
+            Target->RotateTurret(Step);
         }
 
 	}
@@ -54,9 +52,9 @@ void ATurretAIController::Tick(float DeltaSeconds)
 
 bool ATurretAIController::InFireRange()
 {
-	if (Tank && Tower)
+	if (Player && Target)
 	{
-		float Distance = FVector::Dist(Tower->GetActorLocation(), Tank->GetActorLocation());
+		float Distance = FVector::Dist(Player->GetActorLocation(), Target->GetActorLocation());
 		// Check to see if the tank is in range
 		if (Distance < FireRange)
 		{
@@ -68,9 +66,9 @@ bool ATurretAIController::InFireRange()
 	return false;
 }
 
-float ATurretAIController::GetYawOffsetToFaceTarget(const UStaticMeshComponent* TowerPtr, const ATank* TankPtr)
+float ATurretAIController::GetYawOffsetToFaceTarget(const UStaticMeshComponent* TowerPtr, const ABasePawn* PlayerPtr)
 {
-    if (!TowerPtr || !TankPtr)
+    if (!TowerPtr || !PlayerPtr)
     {
         return 0.f; // ”Cˆêˆ×‹óC•ÎˆÚ—Êˆ× 0
     }
@@ -78,7 +76,7 @@ float ATurretAIController::GetYawOffsetToFaceTarget(const UStaticMeshComponent* 
 
     // Žæ“¾™_ŽÒˆÊ’u
     FVector SourceLocation = TowerPtr->GetComponentLocation();
-    FVector TargetLocation = TankPtr->GetActorLocation();
+    FVector TargetLocation = PlayerPtr->GetActorLocation();
 
     // ŒvŽZ–Ú•W•ûŒüiš—ª Z ‚“xj
     FVector Direction = (TargetLocation - SourceLocation);
@@ -99,12 +97,13 @@ float ATurretAIController::GetYawOffsetToFaceTarget(const UStaticMeshComponent* 
 
 void ATurretAIController::CheckFireCondition()
 {
-	if (!Tank) 
+	if (!Player)
 	{
 		return;
 	}
-	if (InFireRange() && Tank->bAlive && Tower) 
+
+	if (InFireRange() && Player->isAlive() && Target)
 	{
-		Tower->Fire();
+        Target->Fire();
 	}
 }
