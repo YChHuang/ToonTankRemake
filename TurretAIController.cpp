@@ -11,12 +11,11 @@
 void ATurretAIController::OnPossess(APawn* InPawn)
 {
     Super::OnPossess(InPawn);
-
+    PrimaryActorTick.bCanEverTick = true;
     GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ATurretAIController::CheckFireCondition, FireRate, true);
     Target = Cast<ABasePawn>(InPawn);
 	Player = Cast<ABasePawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
-    UE_LOG(LogTemp, Warning, TEXT("Hello pawn"))
 
 }
 
@@ -24,7 +23,7 @@ void ATurretAIController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-    PrimaryActorTick.bCanEverTick = true;
+    
 	if (InFireRange() && Player && Target && Target->GetTurret())
 	{
         

@@ -2,14 +2,11 @@
 
 
 #include "EnemySpawner.h"
-#include "Tower.h"
-#include "ToonTanksGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/HitResult.h"
-#include "SpawnManager.h"
 #include "BasePawn.h"
-#include "Components/CapsuleComponent.h"
-
+#include "Engine/TimerHandle.h"
+#include "GameFramework/Actor.h"
 
 // Sets default values
 AEnemySpawner::AEnemySpawner()
@@ -19,20 +16,6 @@ AEnemySpawner::AEnemySpawner()
 
 }
 
-void AEnemySpawner::DisableSpawn()
-{
-    //Disable the timer which continue spawn actor
-    //if (GetWorld()->GetTimerManager().IsTimerActive(SpawnTimer))
-    //{
-    //    UE_LOG(LogTemp, Warning, TEXT("DisableSpawning"));
-    //    GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
-    //}
-    //else
-    //{
-    //    UE_LOG(LogTemp, Warning, TEXT("SpawnTimer not active"));
-    //}
-    
-}
 
 
 
@@ -40,14 +23,14 @@ void AEnemySpawner::DisableSpawn()
 void AEnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
+    GetWorldTimerManager().SetTimer(
+        MyTimerHandle,                     
+        this,                              
+        &AEnemySpawner::SpawnEnemy,        
+        2.0f,                              
+        true                               
+    );
 
-    GameModeBase = Cast<AToonTanksGameModeBase>(UGameplayStatics::GetGameMode(this));
-    Manager = Cast<ASpawnManager>(
-        UGameplayStatics::GetActorOfClass(GetWorld(), ASpawnManager::StaticClass()));
-    if (Manager)
-    {
-        Manager->RegisterSpawner(this);
-    }
 }
 
 // Called every frame
@@ -58,17 +41,23 @@ void AEnemySpawner::Tick(float DeltaTime)
 }
 
 
-ABasePawn* AEnemySpawner::SpawnEnemy()
+void AEnemySpawner::SpawnEnemy()
 {
     //spawn tower
-    if (!EnemyClass) return nullptr;
+    if (!EnemyClass) return;
     
     FVector SpawnLocation = GetSpawnLocation();
-    SpawnLocation.Z += GetCapsuleHeightOffset(EnemyClass);
+    //towerheight is 80
+    SpawnLocation.Z += 80.f;
     
     FRotator SpawnRotation = FRotator::ZeroRotator;
     ABasePawn* SpawnedEnemy = GetWorld()->SpawnActor<ABasePawn>(EnemyClass, SpawnLocation, SpawnRotation);
-    return SpawnedEnemy;
+    if (SpawnedEnemy)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Enemy Spawned"));
+        OnEnemySpawned.Broadcast(SpawnedEnemy);
+    }
+
 }
 
 
@@ -88,25 +77,5 @@ FVector AEnemySpawner::GetSpawnLocation()
     return Origin + RandomOffset;
 }
 
-float AEnemySpawner::GetCapsuleHeightOffset(TSubclassOf<ABasePawn> Class)
-{
-    FTransform SpawnTransform;
-    ABasePawn* TempActor = GetWorld()->SpawnActorDeferred<ABasePawn>(Class, SpawnTransform);
 
-    float HeightOffset = 1;
-    if (TempActor)
-    {
-        UGameplayStatics::FinishSpawningActor(TempActor, SpawnTransform);
-        //UCapsuleComponent* GetCapsule()
-        const UCapsuleComponent* capsul = TempActor->GetCapsule();
-        float capsuleHeight = 0;
-        if (capsul)
-        {
-            capsuleHeight = capsul->GetScaledCapsuleHalfHeight();
-        }
-        HeightOffset += capsuleHeight;
-        TempActor->Destroy();
-    }
-    return HeightOffset;
-}
 

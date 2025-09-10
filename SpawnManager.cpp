@@ -2,9 +2,9 @@
 
 
 #include "SpawnManager.h"
-#include "EnemySpawner.h"
 #include "BasePawn.h"
-#include "ToonTanksGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "EnemySpawner.h"
 
 // Sets default values
 ASpawnManager::ASpawnManager()
@@ -14,19 +14,32 @@ ASpawnManager::ASpawnManager()
 
 }
 
+void ASpawnManager::handleEnemySpawn(ABasePawn* SpawnedEnemy)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Manager received broadcast"));
+}
+
 // Called when the game starts or when spawned
 void ASpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-    GameMode = Cast<AToonTanksGameModeBase>(GetWorld()->GetAuthGameMode());
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemySpawner::StaticClass(), FoundActors);
+	for (AActor* Actor : FoundActors)
+	{
+		Cast<AEnemySpawner>(Actor);
+		if (AEnemySpawner* Spawner = Cast<AEnemySpawner>(Actor))
+		{
+			SpawnerList.Add(Spawner);
+		}
+	}
 
-    if (GameMode)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Manager get gamemode!!"));
-    }
-
-	
+	for (AEnemySpawner* spawner : SpawnerList)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GM got Spawner"));
+		spawner->OnEnemySpawned.AddDynamic(this, &ASpawnManager::handleEnemySpawn);
+	}
 }
 
 // Called every frame
@@ -34,68 +47,4 @@ void ASpawnManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
-
-void ASpawnManager::RegisterSpawner(AEnemySpawner* Spawner)
-{
-    if (Spawner && !SpawnerList.Contains(Spawner))
-    {
-        SpawnerList.Add(Spawner);
-    }
-}
-
-
-
-void ASpawnManager::StartWave(int WaveIndex)
-{
-    CurrentWave = WaveIndex;
-    //TODO:可以讓變數修改
-    RemainingSpawns = 5;
-    UE_LOG(LogTemp, Warning, TEXT("Wave %d ganna spawn %d enemys!!"), CurrentWave, RemainingSpawns)
-    GameMode->addTower(5);
-    GetWorldTimerManager().SetTimer(
-        SpawnTimerHandle,
-        this,
-        &ASpawnManager::SpawnTick,
-        SpawnInterval,
-        true
-    );
-
-}
-
-void ASpawnManager::SpawnTick()
-{
-    if (RemainingSpawns > 0)
-    {
-        // 這裡可以選擇哪個 Spawner 要生怪（隨機 / 輪流）
-        //RequestSpawn(ChooseSpawner());
-
-        if (SpawnerList.Num() > 0)
-        {
-            if (SpawnTypeIndex > SpawnerList.Num() - 1) SpawnTypeIndex = SpawnerList.Num() - 1;
-            AEnemySpawner* Spawner = SpawnerList[SpawnTypeIndex];
-            if (Spawner)
-            {
-                ABasePawn* basePawn = Spawner->SpawnEnemy();
-                if (basePawn)
-                {
-                    
-                    RemainingSpawns--;
-                    UE_LOG(LogTemp, Warning, TEXT("Remian %d enemy will be spawn"), RemainingSpawns);
-                }
-            }
-        }
-        
-    }
-    else
-    {
-        // 生完了就停 Timer
-        GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
-    }
-}
-
-
-void ASpawnManager::OnEnemySpawned()
-{
-    AliveEnemyCount++;
 }

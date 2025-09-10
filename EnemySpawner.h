@@ -6,6 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "EnemySpawner.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemySpawned, ABasePawn*, SpawnedEnemy);
+
+
+
 UCLASS()
 class TOONTANKS_API AEnemySpawner : public AActor
 {
@@ -15,9 +19,11 @@ public:
 	// Sets default values for this actor's properties
 	AEnemySpawner();
 
-	void DisableSpawn();
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnEnemySpawned OnEnemySpawned; // éñåèõîäOåˆäJ
 
-	class ABasePawn* SpawnEnemy();
+
+	void SpawnEnemy();
 
 	
 
@@ -30,27 +36,17 @@ protected:
 	TSubclassOf<ABasePawn> EnemyClass;
 
 
-
-	UPROPERTY(EditAnywhere)
-	int32 MaxEnemies = 10;
-
-
-	
-
 private:
-	class AToonTanksGameModeBase* GameModeBase;
-
-	int Towers = 0;
 
 	bool SpawnEnable = false;
 
-	class ASpawnManager* Manager;
 
 	int spawnCount = 5;
 
 	FVector GetSpawnLocation();
 
-	float GetCapsuleHeightOffset(TSubclassOf<ABasePawn> Class);
+	FTimerHandle MyTimerHandle;
+
 
 public:	
 	// Called every frame

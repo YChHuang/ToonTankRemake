@@ -25,27 +25,13 @@ private:
 	UPROPERTY()
 	TArray<AEnemySpawner*> SpawnerList;
 
-	int CurrentWave = 0;
+	UFUNCTION()
+	void handleEnemySpawn(class ABasePawn* SpawnedEnemy);
 
-	int AliveEnemyCount = 0;
-
-	FTimerHandle SpawnTimerHandle;
-
-	void SpawnTick();
-
-	int RemainingSpawns = 0;
-
-	class AToonTanksGameModeBase* GameMode;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UPROPERTY(EditAnywhere, Category = "Spawn")
-	float SpawnInterval = 5.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Spawn")
-	int32 SpawnTypeIndex = 0;
 
 
 public:	

@@ -6,8 +6,6 @@
 #include "Tank.h"
 #include "Tower.h"
 #include "ToonTanksPlayerController.h"
-#include "EnemySpawner.h"
-#include "SpawnManager.h"
 #include "GameFramework/PlayerController.h"
 
 void AToonTanksGameModeBase::ActorDied(AActor* DeadActor)
@@ -49,14 +47,6 @@ void AToonTanksGameModeBase::BeginPlay()
 
 	HandleGameStart();
 
-	Manager = Cast<ASpawnManager>(
-		UGameplayStatics::GetActorOfClass(GetWorld(), ASpawnManager::StaticClass()));
-
-	if (Manager)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Got manager"))
-		Manager->StartWave(1); // ŠJ‘æˆê”g
-	}
 
 }
 
