@@ -19,17 +19,12 @@ AEnemySpawner::AEnemySpawner()
 
 
 
+
 // Called when the game starts or when spawned
 void AEnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
-    GetWorldTimerManager().SetTimer(
-        MyTimerHandle,                     
-        this,                              
-        &AEnemySpawner::SpawnEnemy,        
-        2.0f,                              
-        true                               
-    );
+
 
 }
 

@@ -7,6 +7,7 @@
 #include "Tower.h"
 #include "ToonTanksPlayerController.h"
 #include "GameFramework/PlayerController.h"
+#include "SpawnManager.h"
 
 void AToonTanksGameModeBase::ActorDied(AActor* DeadActor)
 {
@@ -47,6 +48,9 @@ void AToonTanksGameModeBase::BeginPlay()
 
 	HandleGameStart();
 
+	ASpawnManager* manager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManagerClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	manager->StartWave(1);
+	//TODO:More Wave!!
 
 }
 

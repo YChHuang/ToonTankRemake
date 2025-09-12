@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "SpawnManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveStart, int32, WaveIndex);
+
+
 UCLASS()
 class TOONTANKS_API ASpawnManager : public AActor
 {
@@ -15,9 +18,14 @@ public:
 	// Sets default values for this actor's properties
 	ASpawnManager();
 	void RegisterSpawner(class AEnemySpawner* Spawner);
+
 	void StartWave(int WaveIndex);
 
-	
+
+	UPROPERTY(BlueprintAssignable)
+	FOnWaveStart OnWaveStart;
+
+	void handleWave();
 
 	void OnEnemySpawned();
 
@@ -27,7 +35,9 @@ private:
 
 	UFUNCTION()
 	void handleEnemySpawn(class ABasePawn* SpawnedEnemy);
+	FTimerHandle WaveTimerHandle;
 
+	int32 currentWave = 0;
 
 protected:
 	// Called when the game starts or when spawned

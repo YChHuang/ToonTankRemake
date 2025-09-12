@@ -41,7 +41,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void GameOver(bool bWonGame);
 
-	
+	UPROPERTY(EditDefaultsOnly, Category = "Spawn")
+	TSubclassOf<class ASpawnManager> SpawnManagerClass;
 	
 private:
 	class ASpawnManager* Manager;

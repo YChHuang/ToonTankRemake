@@ -19,6 +19,7 @@ public:
 	// Sets default values for this actor's properties
 	AEnemySpawner();
 
+
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEnemySpawned OnEnemySpawned; // –Œ›”ŠOŒöŠJ
 
@@ -45,7 +46,6 @@ private:
 
 	FVector GetSpawnLocation();
 
-	FTimerHandle MyTimerHandle;
 
 
 public:	
