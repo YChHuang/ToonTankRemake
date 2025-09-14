@@ -20,12 +20,6 @@ public:
 
 	void ActorDied(AActor* DeadActor);
 
-	void addTower(int amount);
-
-
-	void TowerHasSpawned();
-
-	void RegisterSpawner(AEnemySpawner* Spawner);
 
 	TArray<AEnemySpawner*> SpawnerList;
 
@@ -60,11 +54,19 @@ private:
 
 	int32 TargetTowers = 0;
 	int32 MaxSpawnCount = 0;
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	int32 remainWave = 3;
+	int32 currentWave = 0;
 	
 	int GetTargetTowerCount();
 
 	//TODO deletit
 	//int RemainingSpawns = 0;
 	
+	void HandleTankDeath();
+
+	void HandleTowerDeath(class ATower* DestroyedTower);
+
+	void StartNextWave();
 
 };

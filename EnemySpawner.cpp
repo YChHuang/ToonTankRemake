@@ -43,10 +43,20 @@ void AEnemySpawner::SpawnEnemy()
     
     FVector SpawnLocation = GetSpawnLocation();
     //towerheight is 80
-    SpawnLocation.Z += 80.f;
-    
+    float OffsetZ = 0;
+
+    if (float* FoundOffset = EnemyHeightOffsets.Find(EnemyClass))
+    {
+        OffsetZ = *FoundOffset;
+        UE_LOG(LogTemp, Warning, TEXT("OffsetZ is %f"), OffsetZ);
+    }
+
+
+    SpawnLocation.Z += OffsetZ;
+
     FRotator SpawnRotation = FRotator::ZeroRotator;
-    ABasePawn* SpawnedEnemy = GetWorld()->SpawnActor<ABasePawn>(EnemyClass, SpawnLocation, SpawnRotation);
+    SpawnedEnemy = GetWorld()->SpawnActor<ABasePawn>(EnemyClass, SpawnLocation, SpawnRotation);
+
     if (SpawnedEnemy)
     {
         UE_LOG(LogTemp, Warning, TEXT("Enemy Spawned"));
@@ -71,6 +81,4 @@ FVector AEnemySpawner::GetSpawnLocation()
     }
     return Origin + RandomOffset;
 }
-
-
 

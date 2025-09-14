@@ -9,35 +9,57 @@
 #include "GameFramework/PlayerController.h"
 #include "SpawnManager.h"
 
+
 void AToonTanksGameModeBase::ActorDied(AActor* DeadActor)
 {
 	if (DeadActor == Tank)
 	{
-		Tank->HandleDestruction();
-		if (ToonTanksPlayerController)
-		{
-			ToonTanksPlayerController->SetPlayerEnabledState(false);
-		}
-		GameOver(false);
+		HandleTankDeath();
 	}
 	else if (ATower* DestroyedTower = Cast<ATower>(DeadActor))
 	{
-		DestroyedTower->HandleDestruciton();
-		--TargetTowers;
-		
-		//Won condition : No Towers remain and no more towers will spawn
-		if (TargetTowers == 0)
-		{
-			GameOver(true);
-		}
+		HandleTowerDeath(DestroyedTower);
 	}
 }
 
-void AToonTanksGameModeBase::addTower(int amount)
+void AToonTanksGameModeBase::HandleTankDeath()
 {
-	TargetTowers += amount;//Adding Tower spawn count
-	
-	//UE_LOG(LogTemp, Warning, TEXT("Still remain %d Towers!!"), TargetTowers)
+	Tank->HandleDestruction();
+	if (ToonTanksPlayerController)
+	{
+		ToonTanksPlayerController->SetPlayerEnabledState(false);
+	}
+	GameOver(false);
+}
+
+void AToonTanksGameModeBase::HandleTowerDeath(ATower* DestroyedTower)
+{
+	DestroyedTower->HandleDestruciton();
+	--TargetTowers;
+
+	if (TargetTowers > 0) return;
+
+	if (remainWave == 0)
+	{
+		GameOver(true);
+	}
+	else
+	{
+		remainWave--;
+		StartNextWave();
+	}
+}
+
+void AToonTanksGameModeBase::StartNextWave()
+{
+	if (SpawnManager)
+	{
+		SpawnManager->StartWave(++currentWave);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Caution! missing SpawnManager"));
+	}
 }
 
 
@@ -58,7 +80,7 @@ void AToonTanksGameModeBase::BeginPlay()
 	if (SpawnManager)
 	{
 		SpawnManager->OnWaveStart.AddDynamic(this, &AToonTanksGameModeBase::HandleWaveStart);
-		SpawnManager->StartWave(0);
+		SpawnManager->StartWave(currentWave);
 		
 	}
 	

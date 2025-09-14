@@ -36,6 +36,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ABasePawn> EnemyClass;
 
+	// SpawnManager.h
+	UPROPERTY(EditDefaultsOnly, Category = "Spawn")
+	TMap<TSubclassOf<AActor>, float> EnemyHeightOffsets;
 
 private:
 
@@ -46,6 +49,8 @@ private:
 
 	FVector GetSpawnLocation();
 
+
+	ABasePawn* SpawnedEnemy;
 
 
 public:	

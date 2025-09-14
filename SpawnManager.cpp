@@ -39,11 +39,20 @@ void ASpawnManager::StartWave(int WaveIndex)
 
 void ASpawnManager::handleWave()
 {
-	
-	//TODO: choose enemy type by Gm using int:enemytype
-	if (SpawnerList.Num() > 0 && SpawnerList[0])
+	if (SpawnerList.Num() <= 0)
 	{
-		SpawnerList[0]->SpawnEnemy();
+		UE_LOG(LogTemp, Warning, TEXT("There's no any spawner"))
+		return;
+	}
+	//TODO: choose enemy type by Gm using int:enemytype
+
+	int32 RandomIndex = FMath::RandRange(0, SpawnerList.Num() - 1);
+	UE_LOG(LogTemp, Warning, TEXT("There are %d Spawner"), SpawnerList.Num());
+
+	if (SpawnerList[RandomIndex])
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SpawnEnemy using %d spawner."), RandomIndex);
+		SpawnerList[RandomIndex]->SpawnEnemy();
 	}
 }
 
@@ -81,9 +90,10 @@ void ASpawnManager::BeginPlay()
 
 	for (AEnemySpawner* spawner : SpawnerList)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GM got Spawner"));
+		
 		spawner->OnEnemySpawned.AddDynamic(this, &ASpawnManager::handleEnemySpawn);
 	}
+	
 }
 
 // Called every frame
