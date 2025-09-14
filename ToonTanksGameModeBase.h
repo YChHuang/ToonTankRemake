@@ -29,6 +29,9 @@ public:
 
 	TArray<AEnemySpawner*> SpawnerList;
 
+	UFUNCTION()
+	void HandleWaveStart(int32 WaveEnemyRemain);
+
 
 protected:
 
@@ -49,6 +52,8 @@ private:
 	class ATank* Tank;
 	class AToonTanksPlayerController* ToonTanksPlayerController;
 
+	class ASpawnManager* SpawnManager;
+
 	float StartDelay = 3.f;
 
 	void HandleGameStart();
@@ -58,7 +63,8 @@ private:
 	
 	int GetTargetTowerCount();
 
-	int RemainingSpawns = 0;
+	//TODO deletit
+	//int RemainingSpawns = 0;
 	
 
 };

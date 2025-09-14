@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "SpawnManager.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveStart, int32, WaveIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveStart, int32, WaveEnemies);
 
 
 UCLASS()
@@ -38,6 +38,10 @@ private:
 	FTimerHandle WaveTimerHandle;
 
 	int32 currentWave = 0;
+
+	TArray<int32> waveConfig = {5, 5, 8, 8};
+
+	int currentEnemyCount = 0;
 
 protected:
 	// Called when the game starts or when spawned

@@ -26,7 +26,7 @@ void AToonTanksGameModeBase::ActorDied(AActor* DeadActor)
 		--TargetTowers;
 		
 		//Won condition : No Towers remain and no more towers will spawn
-		if (TargetTowers == 0 && RemainingSpawns == 0)
+		if (TargetTowers == 0)
 		{
 			GameOver(true);
 		}
@@ -42,14 +42,26 @@ void AToonTanksGameModeBase::addTower(int amount)
 
 
 
+void AToonTanksGameModeBase::HandleWaveStart(int32 WaveEnemyRemain)
+{
+	TargetTowers += WaveEnemyRemain;
+	UE_LOG(LogTemp, Warning, TEXT("This wave will gonna spawn %d s Enemy"), TargetTowers)
+}
+
 void AToonTanksGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
 	HandleGameStart();
 
-	ASpawnManager* manager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManagerClass, FVector::ZeroVector, FRotator::ZeroRotator);
-	manager->StartWave(1);
+	SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManagerClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	if (SpawnManager)
+	{
+		SpawnManager->OnWaveStart.AddDynamic(this, &AToonTanksGameModeBase::HandleWaveStart);
+		SpawnManager->StartWave(0);
+		
+	}
+	
 	//TODO:More Wave!!
 
 }

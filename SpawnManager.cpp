@@ -16,8 +16,17 @@ ASpawnManager::ASpawnManager()
 
 void ASpawnManager::StartWave(int WaveIndex)
 {
-	OnWaveStart.Broadcast(currentWave);
+
+	if (WaveIndex > waveConfig.Num())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("invalid wave"));
+		return;
+	}
 	currentWave = WaveIndex;
+	currentEnemyCount = waveConfig[currentWave];
+	OnWaveStart.Broadcast(currentEnemyCount);
+	
+
 	UE_LOG(LogTemp, Warning, TEXT("Wave %d start!!"), currentWave);
 	GetWorldTimerManager().SetTimer(
 		WaveTimerHandle,
@@ -31,7 +40,7 @@ void ASpawnManager::StartWave(int WaveIndex)
 void ASpawnManager::handleWave()
 {
 	
-	//TODO: choose enemy type bt gm
+	//TODO: choose enemy type by Gm using int:enemytype
 	if (SpawnerList.Num() > 0 && SpawnerList[0])
 	{
 		SpawnerList[0]->SpawnEnemy();
@@ -43,7 +52,13 @@ void ASpawnManager::handleWave()
 
 void ASpawnManager::handleEnemySpawn(ABasePawn* SpawnedEnemy)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Manager received broadcast"));
+	currentEnemyCount--;
+	if (currentEnemyCount == 0)
+	{
+		//pause timer
+		GetWorldTimerManager().PauseTimer(WaveTimerHandle);
+	}
+
 }
 
 // Called when the game starts or when spawned
@@ -51,7 +66,7 @@ void ASpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OnWaveStart.Broadcast(1);
+	
 
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemySpawner::StaticClass(), FoundActors);
