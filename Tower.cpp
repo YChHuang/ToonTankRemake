@@ -19,7 +19,7 @@ void ATower::Tick(float DeltaTime)
 	//}
 }
 
-void ATower::HandleDestruciton()
+void ATower::HandleDestruction()
 {
 	Super::HandleDestruction();
 	Destroy();

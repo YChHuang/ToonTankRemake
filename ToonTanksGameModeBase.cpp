@@ -34,7 +34,7 @@ void AToonTanksGameModeBase::HandleTankDeath()
 
 void AToonTanksGameModeBase::HandleTowerDeath(ATower* DestroyedTower)
 {
-	DestroyedTower->HandleDestruciton();
+	DestroyedTower->HandleDestruction();
 	--TargetTowers;
 
 	if (TargetTowers > 0) return;
@@ -76,16 +76,21 @@ void AToonTanksGameModeBase::BeginPlay()
 
 	HandleGameStart();
 
+
+	
+	//TODO:More Wave!!
+
+}
+
+void AToonTanksGameModeBase::StartWave()
+{
 	SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManagerClass, FVector::ZeroVector, FRotator::ZeroRotator);
 	if (SpawnManager)
 	{
 		SpawnManager->OnWaveStart.AddDynamic(this, &AToonTanksGameModeBase::HandleWaveStart);
 		SpawnManager->StartWave(currentWave);
-		
-	}
-	
-	//TODO:More Wave!!
 
+	}
 }
 
 
@@ -102,15 +107,21 @@ void AToonTanksGameModeBase::HandleGameStart()
 	{
 		ToonTanksPlayerController->SetPlayerEnabledState(false);
 
-		FTimerHandle PlayerEnableTimerHandle;
-		FTimerDelegate PlayerEnableTimerDelegate = FTimerDelegate::CreateUObject(
-			ToonTanksPlayerController, 
-			&AToonTanksPlayerController::SetPlayerEnabledState, 
-			true
-		);
+		FTimerHandle StartDelayTimerHandle;
+		FTimerDelegate StartDelayDelegate;
+
+		StartDelayDelegate.BindLambda([this]()
+			{
+				if (ToonTanksPlayerController)
+				{
+					ToonTanksPlayerController->SetPlayerEnabledState(true);
+				}
+				StartWave();
+			});
+
 		GetWorldTimerManager().SetTimer(
-			PlayerEnableTimerHandle,
-			PlayerEnableTimerDelegate,
+			StartDelayTimerHandle,
+			StartDelayDelegate,
 			StartDelay,
 			false
 		);

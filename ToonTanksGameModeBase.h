@@ -31,6 +31,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartGame();
@@ -51,6 +53,8 @@ private:
 	float StartDelay = 3.f;
 
 	void HandleGameStart();
+
+	void StartWave();
 
 	int32 TargetTowers = 0;
 	int32 MaxSpawnCount = 0;
