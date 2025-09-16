@@ -8,23 +8,32 @@
 #include "ToonTanksPlayerController.h"
 #include "GameFramework/PlayerController.h"
 #include "SpawnManager.h"
+#include "BasePawn.h"
+#include "GameFramework/Pawn.h"
 
 
 void AToonTanksGameModeBase::ActorDied(AActor* DeadActor)
 {
-	if (DeadActor == Tank)
+	ABasePawn* DeadPawn = Cast<ABasePawn>(DeadActor);
+	if (!DeadPawn)
 	{
-		HandleTankDeath();
+		UE_LOG(LogTemp, Warning, TEXT("InValid Actor Dead!!?"))
+		return;
 	}
-	else if (ATower* DestroyedTower = Cast<ATower>(DeadActor))
+
+	if (APlayerController* PC = Cast<APlayerController>(DeadPawn->GetController()))
 	{
-		HandleTowerDeath(DestroyedTower);
+		HandlePlayerDeath();
+	}
+	else
+	{
+		HandleNPCDeath(DeadPawn);
 	}
 }
 
-void AToonTanksGameModeBase::HandleTankDeath()
+void AToonTanksGameModeBase::HandlePlayerDeath()
 {
-	Tank->HandleDestruction();
+	PlayerTank->HandlePlayerDestruction();
 	if (ToonTanksPlayerController)
 	{
 		ToonTanksPlayerController->SetPlayerEnabledState(false);
@@ -32,9 +41,10 @@ void AToonTanksGameModeBase::HandleTankDeath()
 	GameOver(false);
 }
 
-void AToonTanksGameModeBase::HandleTowerDeath(ATower* DestroyedTower)
+void AToonTanksGameModeBase::HandleNPCDeath(ABasePawn* DestroyedPawn)
 {
-	DestroyedTower->HandleDestruction();
+	DestroyedPawn->HandleDestruction();
+	//WARNING::DestroyedPawn has been set to null
 	--TargetTowers;
 
 	if (TargetTowers > 0) return;
@@ -97,7 +107,7 @@ void AToonTanksGameModeBase::StartWave()
 void AToonTanksGameModeBase::HandleGameStart()
 {
 	TargetTowers = GetTargetTowerCount();
-	Tank = Cast<ATank>(UGameplayStatics::GetPlayerPawn(this, 0));
+	PlayerTank = Cast<ATank>(UGameplayStatics::GetPlayerPawn(this, 0));
 	ToonTanksPlayerController = Cast<AToonTanksPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
 

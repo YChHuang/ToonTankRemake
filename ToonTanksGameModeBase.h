@@ -45,7 +45,7 @@ protected:
 	
 private:
 	class ASpawnManager* Manager;
-	class ATank* Tank;
+	class ATank* PlayerTank;
 	class AToonTanksPlayerController* ToonTanksPlayerController;
 
 	class ASpawnManager* SpawnManager;
@@ -59,7 +59,7 @@ private:
 	int32 TargetTowers = 0;
 	int32 MaxSpawnCount = 0;
 	UPROPERTY(EditAnywhere, Category = "Spawn")
-	int32 remainWave = 3;
+	int32 remainWave = 1;
 	int32 currentWave = 0;
 	
 	int GetTargetTowerCount();
@@ -67,9 +67,9 @@ private:
 	//TODO deletit
 	//int RemainingSpawns = 0;
 	
-	void HandleTankDeath();
+	void HandlePlayerDeath();
 
-	void HandleTowerDeath(class ATower* DestroyedTower);
+	void HandleNPCDeath(class ABasePawn* DestroyedPawn);
 
 	void StartNextWave();
 
