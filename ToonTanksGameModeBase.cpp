@@ -27,6 +27,7 @@ void AToonTanksGameModeBase::ActorDied(AActor* DeadActor)
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("destroyed enemy"))
 		HandleNPCDeath(DeadPawn);
 	}
 }
@@ -43,11 +44,12 @@ void AToonTanksGameModeBase::HandlePlayerDeath()
 
 void AToonTanksGameModeBase::HandleNPCDeath(ABasePawn* DestroyedPawn)
 {
+	if (!DestroyedPawn) return;
 	DestroyedPawn->HandleDestruction();
 	//WARNING::DestroyedPawn has been set to null
-	--TargetTowers;
+	--EnemyRemainCount;
 
-	if (TargetTowers > 0) return;
+	if (EnemyRemainCount > 0) return;
 
 	if (remainWave == 0)
 	{
@@ -76,8 +78,8 @@ void AToonTanksGameModeBase::StartNextWave()
 
 void AToonTanksGameModeBase::HandleWaveStart(int32 WaveEnemyRemain)
 {
-	TargetTowers += WaveEnemyRemain;
-	UE_LOG(LogTemp, Warning, TEXT("This wave will gonna spawn %d s Enemy"), TargetTowers)
+	EnemyRemainCount += WaveEnemyRemain;
+	UE_LOG(LogTemp, Warning, TEXT("This wave will gonna spawn %d s Enemy"), EnemyRemainCount)
 }
 
 void AToonTanksGameModeBase::BeginPlay()
@@ -106,7 +108,7 @@ void AToonTanksGameModeBase::StartWave()
 
 void AToonTanksGameModeBase::HandleGameStart()
 {
-	TargetTowers = GetTargetTowerCount();
+	EnemyRemainCount = GetEnemyCount();
 	PlayerTank = Cast<ATank>(UGameplayStatics::GetPlayerPawn(this, 0));
 	ToonTanksPlayerController = Cast<AToonTanksPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
@@ -138,10 +140,14 @@ void AToonTanksGameModeBase::HandleGameStart()
 	}
 }
 
-int AToonTanksGameModeBase::GetTargetTowerCount()
+int AToonTanksGameModeBase::GetEnemyCount()
 {
-	TArray<AActor*> Towers;
-	UGameplayStatics::GetAllActorsOfClass(this, ATower::StaticClass(), Towers);
+	TArray<AActor*> Enemies;
+	UGameplayStatics::GetAllActorsOfClass(this, ABasePawn::StaticClass(), Enemies);
+	int count = 0;
+	for (AActor* Enemy : Enemies) {
+		if (Enemy && Enemy->ActorHasTag("Enemy")) count++;
+	}
 
-	return Towers.Num();
+	return count;
 }

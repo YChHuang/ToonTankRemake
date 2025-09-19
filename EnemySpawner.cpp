@@ -59,6 +59,7 @@ void AEnemySpawner::SpawnEnemy()
 
     if (SpawnedEnemy)
     {
+        SpawnedEnemy->Tags.Add("Enemy");
         UE_LOG(LogTemp, Warning, TEXT("Enemy Spawned"));
         OnEnemySpawned.Broadcast(SpawnedEnemy);
     }

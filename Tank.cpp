@@ -86,16 +86,13 @@ void ATank::Tick(float DeltaTime)
 
 void ATank::HandlePlayerDestruction()
 {
-	Super::HandleDestruction();
-	SetActorHiddenInGame(true);
-	SetActorTickEnabled(false);
+	Super::HandlePlayerDestruction();
 	bAlive = false;
 }
 
 void ATank::HandleDestruction()
 {
 	Super::HandleDestruction();
-	Destroy();
 }
 
 

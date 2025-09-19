@@ -42,6 +42,13 @@ void ABasePawn::HandleDestruction()
 	if (DeathCameraShakeClass) {
 		GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(DeathCameraShakeClass);
 	}
+	Destroy();
+}
+
+void ABasePawn::HandlePlayerDestruction()
+{
+	SetActorHiddenInGame(true);
+	SetActorTickEnabled(false);
 }
 
 const UCapsuleComponent* ABasePawn::GetCapsule() const

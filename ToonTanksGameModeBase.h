@@ -56,16 +56,13 @@ private:
 
 	void StartWave();
 
-	int32 TargetTowers = 0;
+	int32 EnemyRemainCount = 0;
 	int32 MaxSpawnCount = 0;
 	UPROPERTY(EditAnywhere, Category = "Spawn")
-	int32 remainWave = 1;
+	int32 remainWave = 2;//Using this to decide how many wave will be start, but is not a good way.
 	int32 currentWave = 0;
 	
-	int GetTargetTowerCount();
-
-	//TODO deletit
-	//int RemainingSpawns = 0;
+	int GetEnemyCount();
 	
 	void HandlePlayerDeath();
 

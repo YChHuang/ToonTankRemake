@@ -18,6 +18,8 @@ public:
 
 	void HandleDestruction();
 
+	void HandlePlayerDestruction();
+
 	const class UCapsuleComponent* GetCapsule() const;
 
 	void RotateTurret(const FInputActionValue& Value);
