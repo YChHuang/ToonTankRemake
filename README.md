@@ -10,7 +10,7 @@ C++：
 - 具跨領域背景，能結合 3D/美術知識進行資產掛接與流程優化
 
 
-# UE5 Wave System Demo
+
 
 ## 專案簡介
 一個使用 C++ 與 Unreal Engine 5 實作的波次生成系統，包含敵人生成、波次切換、遊戲結束判定等功能。
@@ -35,18 +35,33 @@ C++：
 原版炮塔瞄準系統在 `Tick` 中使用滑鼠游標掃描場景，取得目標座標後傳入 `RotateTurret()` 進行平滑旋轉。此設計依賴滑鼠輸入與 `HitResult` 計算，不支援搖桿操作，且對 AIController 擴展不友好。
 
 **痛點**  
-- 輸入來源耦合：函式簽名直接依賴世界座標，無法抽象成 Enhanced Input 的 `InputAction` 向量。  
-- 操作模式限制：搖桿輸入為軸值，無法直接轉換成目標座標。  
-- AI 擴展困難：AI 無游標概念。
-- 當可以用controller輸入float後，另一個問題是，原本Enemy的邏輯是直接用玩家的座標直接套用RotateTurret()使得可以指向玩家，但此時邏輯被改成輸入float了
-- 成功將所有邏輯寫入AIController，但RotateTurret()是輸入float，但一直overshooting導致砲塔一直轉圈
-- 在AIController會需要取得砲塔的指標，當時沒有getter的概念，以為可以直接取得
+### 問題 1：輸入來源耦合
+**原因**：函式簽名直接依賴世界座標，無法抽象成 Enhanced Input 的 `InputAction` 向量，限制了輸入模式的通用性。  
+**解法**：將 `RotateTurret(FVector LookAtTarget)` 改為 `RotateTurret(const FInputActionValue& Value)`，使函式可直接接收玩家輸入值，支援多種輸入設備。
 
-**改動**  
-- 將 `RotateTurret(FVector LookAtTarget)` 改為 `RotateTurret(const FInputActionValue& Value)`。  
-- 移除目標座標計算，改為根據玩家輸入值計算 `DeltaYaw`，並引入 `DeltaSeconds` 控制旋轉速度，確保不同幀率下旋轉一致。
-- 先把邏輯抽象給AIController，再用FindDeltaAngleDegrees，底層是用Atan2取得弧度並再轉成float
-- 和線性插直一樣給Clamp即可，並動態調整兩端
+---
+
+### 問題 2：操作模式限制，GetHitResultUnderCursor僅限滑鼠
+**原因**：搖桿輸入為軸值（float），無法直接轉換成目標座標，原本的瞄準邏輯依賴滑鼠游標與世界座標。  
+**解法**：移除目標座標計算，改為根據玩家輸入值計算 `DeltaYaw`，並引入 `DeltaSeconds` 控制旋轉速度，確保不同幀率下旋轉一致。
+
+---
+
+### 問題 3：AI 擴展困難
+**原因**：AI 無游標概念，原本 Enemy 的邏輯是直接把玩家座標套用在 `RotateTurret()`，但改成 float 輸入後無法直接指向玩家。  
+**解法**：將旋轉邏輯抽象到 AIController，使用 `FindDeltaAngleDegrees`（底層 `atan2` 計算弧度再轉成 float）取得角度差，並透過 `Clamp` 限制旋轉範圍，動態調整兩端避免 overshooting。
+
+---
+
+### 問題 4：砲塔旋轉過度（overshooting）
+**原因**：AIController 呼叫 `RotateTurret()` 時輸入 float，缺乏角度差限制，導致砲塔無限轉圈。  
+**解法**：在 AIController 中使用 `Clamp` 對角度差進行限制，並根據需求動態調整最大最小值，防止過度旋轉。
+
+---
+
+### 問題 5：AIController 無法取得砲塔指標
+**原因**：當時沒有 getter 的概念，嘗試直接存取砲塔指標失敗。  
+**解法**：在基類或相關組件中提供明確的 getter 方法，讓 AIController 能安全取得砲塔指標並進行控制。
 
 **成果**  
 此改動使炮塔旋轉邏輯同時支援滑鼠與搖桿輸入，並為 AIController 提供更通用的控制接口，降低後續擴展成本。
@@ -60,42 +75,19 @@ C++：
 
 **痛點**  
 
-- 生成的Enemy若直接加入在EnemyCount上，很高的機會在敵人尚未完全生成，就觸發GaemOver
-- 生成敵人會跑進地板，觸發生成失敗，利用Sweap掃地板生成，但又遇到角色本身高度的問題
-- 統計生成時，因為可能失敗，計數出現困難
-- 一切能運作後，因為過多的藍圖依賴注入，此外有許多的循環依賴，後續想要增加更多的spawner/EnemyClass 實在無法繼續擴充
-- 原本的Enemey邏輯寫死在Tower這個class上，但我想讓玩家操作所有pawn分不清enemy
-- 此時由於泛化邏輯，玩家的死亡邏輯與enemy衝突
-- 寫出spaghetti
+### 問題 1：GameOver 提前觸發
+**原因**：若使用生成後將原本的Count++，那生成的敵人尚未完全生成就被計入 EnemyCount，導致計數歸零過早觸發。
+**解法**：加入 RemainingWave 計數，僅在波次完成且Count == 0後才觸發 GameOver 條件。
 
+### 問題 2：生成位置錯誤（敵人掉進地板）
+**原因**：生成時碰撞檢測仍須角色高度的offset，角色高度未知，導致一系列障礙。
+**解法**：初版用Spawn一個 DummyVersion 取 CapsuleHeight再刪掉dummy，後改為 Blueprint 可編輯的哈希表儲存 <UClass, 高度>，在看過一些遊戲的早期開發，當時似乎連Cross/Dot product都能查表了，決定改用查表，原版雖然較精準但很浪費效能。
 
-**改動**  
-- 在加入RemainingWave後，暫時解決GameOver邏輯
-- 在首次嘗試時，先生成一個DummyVersion，取抓它的CapsuleHeight，再把它刪掉，雖可行，但為後續埋下許多地雷且效能不佳，後續解方：硬編一個能BluePrint編輯的哈希表儲存<UClass, 高度>
-- 在生成成功後，會回傳該class的指標，透過它可以判斷是否生成成功
-- 重構邏輯，將依賴注入改成多播委託，並使用工廠生成spawnerManager，除了取得指標外，順便訂閱delegate，而spawnManager會從當前存在Editor的spawner尋找必要的資訊和生成範圍(這些可以透過BP設定，因此我保留在Editor)等
-- 將Tower邏輯降維成基類，改用controller和Tag判斷是否為enemy，並在生成Actor時就加入標籤，以便gamemode統計
-- 利用前面的tag判斷玩家，並且寫一個玩家專屬的方法，從原本基類的方法，override成NPCver和PlayerVer
-- AI幫忙封裝
+### 問題 3：架構擴充困難
+**原因**：藍圖依賴注入過多、循環依賴，後續增加新 spawner/EnemyClass 困難度極高。
+**解法**：重構為多播委託 + 工廠模式生成 spawnerManager，工廠模式也少了一次依賴注入，並透過 delegate 訂閱事件。
 
+### 問題 4：玩家/敵人邏輯混淆
+**原因**：原版本 Enemy 邏輯寫死在 Tower class，泛化後玩家死亡邏輯與 Enemy 衝突。
+**解法**：將 Tower 降維成基類，生成時加 Tag 區分角色，並 override 基類方法為 NPCver / PlayerVer。
 
-
-
-
-
-## 架構圖
-![Wave System Architecture](docs/wave_system_architecture.png)
-
-## 技術細節
-- 語言：C++
-- 引擎：Unreal Engine 5
-- 使用 UE API：`GetWorldTimerManager`, `UCLASS`, `UPROPERTY`, `TArray`, `Delegate`
-- 設計模式：事件驅動、模組化設計
-
-## 專案截圖
-![Gameplay Screenshot](docs/gameplay.png)
-
-## 如何運行
-1. Clone 專案
-2. 在 UE5 中開啟 `.uproject`
-3. 編譯並運行
