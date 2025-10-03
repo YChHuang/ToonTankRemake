@@ -97,3 +97,10 @@ C++：
 #### 問題 4：玩家/敵人邏輯混淆
 **原因**：原版本 Enemy 邏輯寫死在 Tower class，泛化後玩家死亡邏輯與 Enemy 衝突。  
 **解法**：將 Tower 降維成基類，生成時加 Tag 區分角色，並 override 基類方法為 NPCver / PlayerVer。
+
+#### 問題 5：爬斜坡
+**原因**：原本的AddActorLocalOffset並不能爬斜坡
+**解法**：使用movementComponent...
+
+#### TODO: camera 應該綁在root，並在tick更新springArm，且只保留yaw。
+
