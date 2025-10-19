@@ -25,6 +25,7 @@ public:
 	void RotateTurret(const FInputActionValue& Value);
 
 	UStaticMeshComponent* GetTurret();
+	UStaticMeshComponent* GetBase();
 
 	void Fire();
 	bool isAlive();
@@ -40,13 +41,15 @@ protected:
 	float CapsuleHalfHeight = 0;
 	bool bAlive = true;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* BaseMesh;
+
 	
 
 private:
 
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* BaseMesh;
+
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))

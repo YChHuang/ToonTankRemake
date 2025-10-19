@@ -24,7 +24,12 @@ ATank::ATank()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComp->SetupAttachment(SpringArmComp);
 
+	MovementComponent = CreateDefaultSubobject<UTankPawnMovementComponent>(TEXT("MovementComponent"));
+	MovementComponent->UpdatedComponent = RootComponent;
+
 }
+
+
 
 void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -63,15 +68,7 @@ void ATank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//sweaptarget that gonna fire to
-	//if (TankPlayerController)
-	//{
-	//	FHitResult HitResult;
-	//	TankPlayerController->GetHitResultUnderCursor(
-	//		ECollisionChannel::ECC_Visibility,
-	//		false,
-	//		HitResult
-	//	);
+
 
 
 	//FVector AimPoint;
@@ -131,10 +128,22 @@ void ATank::Move(const FInputActionValue& inValue)
 	float InputValue = inValue.Get<float>();
 
 
-	FVector DeltaLocation = FVector::ZeroVector;
-	DeltaLocation.X = InputValue * Speed * UGameplayStatics::GetWorldDeltaSeconds(this);
-	AddActorLocalOffset(DeltaLocation, true);
+	//FVector DeltaLocation = FVector::ZeroVector;
+	//DeltaLocation.X = InputValue * Speed * UGameplayStatics::GetWorldDeltaSeconds(this);
+	//AddActorLocalOffset(DeltaLocation, true);
 
+	if (MovementComponent && InputValue != 0.f)
+	{
+		FVector Forward = GetActorForwardVector();
+		MovementComponent->AddInputVector(Forward * InputValue);
+	}
+
+}
+
+
+UPawnMovementComponent* ATank::GetMovementComponent() const
+{
+	return MovementComponent;
 }
 
 void ATank::Turn(const FInputActionValue& inValue)
@@ -202,4 +211,18 @@ void ATank::OnLook(const FInputActionValue& Value)
 			bHasGamepadInput = true;
 		}
 	}
+}
+
+
+float ATank::GetPitchFromSlopeNormal(const FVector& Normal, const FVector& Forward)
+{
+	// Project forward vector on slope plane
+	FVector ForwardOnSlope = FVector::VectorPlaneProject(Forward, Normal).GetSafeNormal();
+
+	// Calculate angle between forward and its projection (signed pitch)
+	float AngleRad = FMath::Atan2(Normal.Z, FVector::DotProduct(Forward, Normal));
+	float PitchDegrees = FMath::RadiansToDegrees(AngleRad);
+
+	// Clamp pitch if needed, e.g. between -45 to 45 degrees
+	return FMath::Clamp(PitchDegrees, -45.f, 45.f);
 }

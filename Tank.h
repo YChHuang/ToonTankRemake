@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "BasePawn.h"
 #include "InputAction.h"
+#include "TankPawnMovementComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Tank.generated.h"
 
 
@@ -51,7 +53,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* FireAction;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	UTankPawnMovementComponent* MovementComponent;
 
+	virtual UPawnMovementComponent* GetMovementComponent() const override;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -68,6 +73,8 @@ private:
 	bool GetAimingPoint(FVector& OutPoint) const;
 
 	void OnLook(const FInputActionValue& Value);
+
+	float GetPitchFromSlopeNormal(const FVector& Normal, const FVector& Forward);
 
 	float ViewportCenterX = 0.f;
 

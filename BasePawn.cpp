@@ -13,13 +13,15 @@ ABasePawn::ABasePawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Collider"));
+	//TODO: Find out what is it do.
+	CapsuleComp->SetCollisionProfileName(TEXT("Pawn"));
 	RootComponent = CapsuleComp;
 
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Base Mesh"));
 	BaseMesh->SetupAttachment(CapsuleComp);
 
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turrent Mesh"));
-	TurretMesh->SetupAttachment(CapsuleComp);
+	TurretMesh->SetupAttachment(BaseMesh);
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Projectile SpawnPoint"));
 	ProjectileSpawnPoint->SetupAttachment(TurretMesh);
@@ -73,6 +75,11 @@ void ABasePawn::RotateTurret(const FInputActionValue& Value)
 
 	TurretMesh->SetWorldRotation(CurrentRotation);
 
+}
+
+UStaticMeshComponent* ABasePawn::GetBase()
+{
+	return BaseMesh;
 }
 
 UStaticMeshComponent* ABasePawn::GetTurret()
