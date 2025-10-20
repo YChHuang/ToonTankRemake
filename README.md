@@ -79,4 +79,4 @@
 ---
 
 ## TODO
-- Camera 應綁在 root，並在 `Tick` 更新 `SpringArm`，僅保留 yaw。
+- Camera 應綁在 root，並在 `Tick` 更新 `SpringArm`，僅保留 yaw。//done 20251020
