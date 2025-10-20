@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Tank.h"
@@ -19,7 +19,7 @@ ATank::ATank()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArmComp->SetupAttachment(TurretMesh);
+	SpringArmComp->SetupAttachment(RootComponent);
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComp->SetupAttachment(SpringArmComp);
@@ -53,7 +53,6 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 		if (LookAction)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Find IA_Look!!"));
 			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATank::RotateTurret);
 		}
 	}
@@ -64,12 +63,34 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	//PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ATank::Fire);
 }
 
+void ATank::RotateSpringArm()
+{
+	if (TurretMesh && SpringArmComp)
+	{
+		float CurrentYaw = SpringArmComp->GetRelativeRotation().Yaw;
+		float TargetYaw = TurretMesh->GetComponentRotation().Yaw;
+
+		// è¨ˆç®—æœ€çŸ­è§’åº¦å·®
+		float DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentYaw, TargetYaw);
+
+		// æ’å€¼é€Ÿåº¦
+		float InterpSpeed = 10.f;
+
+		// å¹³æ»‘æ›´æ–°Yaw
+		float NewYaw = CurrentYaw + DeltaYaw * FMath::Clamp(GetWorld()->GetDeltaSeconds() * InterpSpeed, 0.f, 1.f);
+
+		FRotator NewRotation = SpringArmComp->GetRelativeRotation();
+		NewRotation.Yaw = NewYaw * 0.1;
+		SpringArmComp->SetRelativeRotation(NewRotation);
+	}
+}
+
 void ATank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 
-
+	RotateSpringArm();
 
 	//FVector AimPoint;
 	//if (GetAimingPoint(AimPoint))
@@ -158,7 +179,7 @@ void ATank::Turn(const FInputActionValue& inValue)
 bool ATank::GetAimingPoint(FVector& OutPoint) const
 {
 
-	if (bHasGamepadInput) // ”VŒã‰ä˜ì˜ğİ”‡ŒÂŠø•W
+	if (bHasGamepadInput) // ä¹‹å¾Œæˆ‘å€‘æœƒè¨­é€™å€‹æ——æ¨™
 	{
 		OutPoint = CachedGamepadAimPoint;
 		return true;
@@ -189,7 +210,7 @@ void ATank::OnLook(const FInputActionValue& Value)
 
 	if (!LookInput.IsNearlyZero())
 	{
-		// 1. ”cŠ…•ûŒüçz¬¢ŠE•ûŒü
+		// 1. æŠŠæ–æ¡¿æ–¹å‘è½‰æˆä¸–ç•Œæ–¹å‘
 		FVector WorldDirection;
 		FVector WorldOrigin;
 		TankPlayerController->DeprojectScreenPositionToWorld(
@@ -199,7 +220,7 @@ void ATank::OnLook(const FInputActionValue& Value)
 			/*Out*/ WorldDirection
 		);
 
-		// 2. Ëüû‘ª
+		// 2. å°„ç·šæª¢æ¸¬
 		FHitResult Hit;
 		FVector Start = WorldOrigin;
 		FVector End = Start + WorldDirection * 100000.f;
