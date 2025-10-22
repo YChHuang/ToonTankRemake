@@ -1,10 +1,33 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "SpawnManager.generated.h"
+
+//
+// SpawnManager - 波次生成管理器
+// 
+//  職責:
+//  - 管理多個 EnemySpawner
+//  - 根據波次配置定時生成敵人
+//  - 追蹤生成進度並通知 GameMode
+// 
+//  使用方式:
+//  1. 在關卡中放置多個 EnemySpawner
+//  2. GameMode 呼叫 StartWave(WaveIndex)
+//  3. 透過 OnWaveStart/OnEnemySpawned 接收事件
+// 
+//  波次流程:
+//  GameMode::StartWave()
+//    → SpawnManager::StartWave()
+//      → 啟動 Timer (每 SpawnInterval 秒)
+//        → SpawnEnemyTick()
+//          → 隨機選 Spawner
+//          → Spawner::SpawnEnemy()
+//            → 觸發 OnEnemySpawned
+ 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveStart, int32, WaveEnemies);
 
@@ -30,6 +53,8 @@ public:
 	void OnEnemySpawned();
 
 private:
+
+	//Container which stores spawners. It will add spawner while start game
 	UPROPERTY()
 	TArray<AEnemySpawner*> SpawnerList;
 
@@ -37,11 +62,15 @@ private:
 	void handleEnemySpawn(class ABasePawn* SpawnedEnemy);
 	FTimerHandle WaveTimerHandle;
 
-	int32 currentWave = 0;
+	int32 CurrentWave = 0;
 
-	TArray<int32> waveConfig = {5, 5, 8, 8};
+	//HACK::Hard core
+	TArray<int32> WaveConfigs = {5, 5, 8, 8};
 
-	int currentEnemyCount = 0;
+	int CurrentEnemyCount = 0;
+
+	UPROPERTY(EditAnyWhere, Category = "Spawn")
+	float SpawnInterval = 2.f;
 
 protected:
 	// Called when the game starts or when spawned

@@ -19,7 +19,7 @@ public:
 	// Sets default values for this actor's properties
 	AEnemySpawner();
 
-
+	//Delegate“I–Œ
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEnemySpawned OnEnemySpawned; // –Œ›”ŠOŒöŠJ
 

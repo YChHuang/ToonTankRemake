@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -8,9 +8,25 @@
 #include "ToonTanksGameModeBase.generated.h"
 
 
-/**
- * 
- */
+//
+//  ToonTanksGameModeBase - GameMode入口
+// 
+//  職責:
+//  - 處理玩家死亡
+//  - 處理勝利條件
+//  - 波次入口
+// 
+//  使用方式:
+//  1. 在Editor套用此方法
+// 
+//  玩家死亡邏輯：
+//	 -在ATank呼叫destroy
+//	  -沒收控制器控制權
+//		-玩家輸掉遊戲
+// 
+//	勝利條件：
+//	 -玩家存活且場上沒敵人且波次已完成
+//	  -
 UCLASS()
 class TOONTANKS_API AToonTanksGameModeBase : public AGameModeBase
 {
@@ -59,8 +75,8 @@ private:
 	int32 EnemyRemainCount = 0;
 	int32 MaxSpawnCount = 0;
 	UPROPERTY(EditAnywhere, Category = "Spawn")
-	int32 remainWave = 2;//Using this to decide how many wave will be start, but is not a good way.
-	int32 currentWave = 0;
+	int32 RemainWave = 2;//Using this to decide how many wave will be start, but is not a good way.
+	int32 CurrentWave = 0;
 	
 	int GetEnemyCount();
 	

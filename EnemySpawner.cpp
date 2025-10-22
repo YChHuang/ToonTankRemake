@@ -18,8 +18,6 @@ AEnemySpawner::AEnemySpawner()
 
 
 
-
-
 // Called when the game starts or when spawned
 void AEnemySpawner::BeginPlay()
 {
@@ -38,13 +36,16 @@ void AEnemySpawner::Tick(float DeltaTime)
 
 void AEnemySpawner::SpawnEnemy()
 {
-    //spawn tower
+    // === 無可生成敵人，提早返回 ===
     if (!EnemyClass) return;
     
+    // === 隨機生成與生成在地上 === 
+
     FVector SpawnLocation = GetSpawnLocation();
     //towerheight is 80
     float OffsetZ = 0;
 
+    // 暫時把測試過的hardcode存在set內
     if (float* FoundOffset = EnemyHeightOffsets.Find(EnemyClass))
     {
         OffsetZ = *FoundOffset;
@@ -54,13 +55,17 @@ void AEnemySpawner::SpawnEnemy()
 
     SpawnLocation.Z += OffsetZ;
 
+    // 嘗試生成敵人
     FRotator SpawnRotation = FRotator::ZeroRotator;
     SpawnedEnemy = GetWorld()->SpawnActor<ABasePawn>(EnemyClass, SpawnLocation, SpawnRotation);
 
+    // 檢測生成是否成功
     if (SpawnedEnemy)
     {
+        //標記Enemy用來區分實例
         SpawnedEnemy->Tags.Add("Enemy");
         UE_LOG(LogTemp, Warning, TEXT("Enemy Spawned"));
+        //通知spawn manager
         OnEnemySpawned.Broadcast(SpawnedEnemy);
     }
 

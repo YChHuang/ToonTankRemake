@@ -28,17 +28,20 @@ Enemy (敵人)
 ### 1. 動態生成 SpawnManager 的設計疑慮
 
 **目前寫法:**
+
 ```cpp
 SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(SpawnManagerClass, ...);
 ```
 
 **問題:**
+
 - SpawnManager 是**管理者**,不應該像敵人一樣動態生成
 - 每次開波次都 Spawn 一個新的,舊的怎麼辦?
 - 這樣會有記憶體洩漏風險
 
 **建議:**  
 SpawnManager 應該:
+
 - 在 GameMode 的 `BeginPlay()` 中建立一次
 - 或直接作為 GameMode 的 Component
 - 或放在場景中(像 GameState 一樣)
@@ -48,6 +51,7 @@ SpawnManager 應該:
 ### 2. 變數命名不一致
 
 **目前的命名:**
+
 ```cpp
 currentWave     // 小寫開頭
 EnemyRemainCount // 大寫開頭
@@ -59,6 +63,7 @@ waveConfig      // 成員變數小寫
 難以區分變數類型和作用域
 
 **建議統一命名規範:**
+
 ```cpp
 // 成員變數
 int32 CurrentWave;
@@ -77,6 +82,7 @@ int32 randomIndex = ...;
 ### 3. 缺少註解和意圖說明
 
 **目前寫法:**
+
 ```cpp
 void ASpawnManager::handleWave()
 {
@@ -129,19 +135,19 @@ protected:
 
 private:
     // === Wave Management ===
-    
+
     /** 波次管理器 - 負責控制敵人生成 */
     UPROPERTY()
     ASpawnManager* SpawnManager;
-    
+
     /** SpawnManager 的類別,可在 BP 中設定 */
     UPROPERTY(EditDefaultsOnly, Category = "Wave")
     TSubclassOf<ASpawnManager> SpawnManagerClass;
-    
+
     /** 當前波次 (從 0 開始) */
     UPROPERTY()
     int32 CurrentWave;
-    
+
     /** 當前波次剩餘敵人數量 */
     UPROPERTY()
     int32 EnemyRemainCount;
@@ -154,7 +160,7 @@ private:
     /** 當波次開始時的回調 - 更新剩餘敵人計數 */
     UFUNCTION()
     void HandleWaveStart(int32 WaveEnemyCount);
-    
+
     /** 當敵人死亡時的回調 */
     UFUNCTION()
     void HandleEnemyDestroyed();
@@ -168,21 +174,21 @@ private:
 void AToonTanksGameModeBase::BeginPlay()
 {
     Super::BeginPlay();
-    
+
     // 初始化 SpawnManager (只建立一次)
     if (SpawnManagerClass)
     {
         FActorSpawnParameters SpawnParams;
         SpawnParams.Owner = this;
         SpawnParams.Name = FName("SpawnManager");
-        
+
         SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(
             SpawnManagerClass, 
             FVector::ZeroVector, 
             FRotator::ZeroRotator,
             SpawnParams
         );
-        
+
         if (SpawnManager)
         {
             // 綁定事件
@@ -199,7 +205,7 @@ void AToonTanksGameModeBase::StartWave(int32 WaveIndex)
         UE_LOG(LogTemp, Error, TEXT("SpawnManager is null! Cannot start wave."));
         return;
     }
-    
+
     CurrentWave = WaveIndex;
     SpawnManager->StartWave(WaveIndex);
 }
@@ -249,11 +255,11 @@ class ASpawnManager : public AActor
 
 public:
     // === Delegates ===
-    
+
     /** 當波次開始時觸發 (參數:敵人總數) */
     UPROPERTY(BlueprintAssignable, Category = "Wave")
     FOnWaveStartSignature OnWaveStart;
-    
+
     /** 當敵人生成時觸發 */
     UPROPERTY(BlueprintAssignable, Category = "Wave")
     FOnEnemySpawnedSignature OnEnemySpawned;
@@ -263,48 +269,48 @@ protected:
 
 private:
     // === Wave Configuration ===
-    
+
     /** 每波的敵人數量配置 [波次索引 -> 敵人數量] */
     UPROPERTY(EditDefaultsOnly, Category = "Wave", 
         meta = (DisplayName = "Wave Enemy Counts", 
                 ToolTip = "索引對應波次,值為該波次的敵人數量"))
     TArray<int32> WaveConfigs = {5, 10, 15, 20}; // 預設值
-    
+
     /** 生成敵人的時間間隔(秒) */
     UPROPERTY(EditDefaultsOnly, Category = "Wave", 
         meta = (ClampMin = "0.5", ClampMax = "10.0",
                 ToolTip = "每隔多久生成一個敵人"))
     float SpawnInterval = 2.0f;
-    
+
     // === Runtime State ===
-    
+
     /** 當前波次索引 */
     int32 CurrentWaveIndex;
-    
+
     /** 本波次還需生成的敵人數量 */
     int32 RemainingSpawnCount;
-    
+
     /** 場景中所有的生成點 */
     UPROPERTY()
     TArray<AEnemySpawner*> SpawnerList;
-    
+
     /** 生成計時器 */
     FTimerHandle SpawnTimerHandle;
 
 public:
     /** 開始指定波次 */
     void StartWave(int32 WaveIndex);
-    
+
     /** 停止當前波次 */
     void StopWave();
 
 private:
     /** 初始化:找到場景中所有 Spawner */
     void InitializeSpawners();
-    
+
     /** 定時器回調:執行一次敵人生成 */
     void SpawnEnemyTick();
-    
+
     /** 當 Spawner 成功生成敵人時的回調 */
     UFUNCTION()
     void HandleEnemySpawned(AEnemy* SpawnedEnemy);
@@ -327,19 +333,19 @@ void ASpawnManager::InitializeSpawners()
     // === 找到場景中所有 EnemySpawner ===
     TArray<AActor*> FoundActors;
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemySpawner::StaticClass(), FoundActors);
-    
+
     SpawnerList.Empty();
     for (AActor* Actor : FoundActors)
     {
         if (AEnemySpawner* Spawner = Cast<AEnemySpawner>(Actor))
         {
             SpawnerList.Add(Spawner);
-            
+
             // 綁定生成事件
             Spawner->OnEnemySpawned.AddDynamic(this, &ASpawnManager::HandleEnemySpawned);
         }
     }
-    
+
     UE_LOG(LogTemp, Log, TEXT("SpawnManager: Found %d spawners in level"), SpawnerList.Num());
 }
 
@@ -352,23 +358,23 @@ void ASpawnManager::StartWave(int32 WaveIndex)
             WaveIndex, WaveConfigs.Num() - 1);
         return;
     }
-    
+
     if (SpawnerList.Num() == 0)
     {
         UE_LOG(LogTemp, Error, TEXT("No spawners found in level! Cannot start wave."));
         return;
     }
-    
+
     // === 初始化波次狀態 ===
     CurrentWaveIndex = WaveIndex;
     RemainingSpawnCount = WaveConfigs[WaveIndex];
-    
+
     UE_LOG(LogTemp, Warning, TEXT("=== Wave %d Start === (Enemies: %d)"), 
         CurrentWaveIndex, RemainingSpawnCount);
-    
+
     // 通知 GameMode
     OnWaveStart.Broadcast(RemainingSpawnCount);
-    
+
     // === 開始生成計時器 ===
     // 每 SpawnInterval 秒生成一個敵人,直到本波次配額用完
     GetWorldTimerManager().SetTimer(
@@ -396,20 +402,20 @@ void ASpawnManager::SpawnEnemyTick()
         UE_LOG(LogTemp, Warning, TEXT("Wave %d: All enemies spawned"), CurrentWaveIndex);
         return;
     }
-    
+
     // === 隨機選擇一個 Spawner ===
     int32 RandomIndex = FMath::RandRange(0, SpawnerList.Num() - 1);
     AEnemySpawner* SelectedSpawner = SpawnerList[RandomIndex];
-    
+
     if (!SelectedSpawner)
     {
         UE_LOG(LogTemp, Warning, TEXT("Selected spawner is null!"));
         return;
     }
-    
+
     // === 嘗試生成敵人 ===
     bool bSpawnSuccess = SelectedSpawner->SpawnEnemy();
-    
+
     if (bSpawnSuccess)
     {
         RemainingSpawnCount--;
@@ -428,7 +434,7 @@ void ASpawnManager::HandleEnemySpawned(AEnemy* SpawnedEnemy)
     {
         return;
     }
-    
+
     // 轉發事件給 GameMode
     OnEnemySpawned.Broadcast(SpawnedEnemy);
 }
@@ -459,13 +465,13 @@ void MyFunction()
 {
     // === 參數驗證 ===
     if (!IsValid()) return;
-    
+
     // === 初始化 ===
     Setup();
-    
+
     // === 執行邏輯 ===
     DoWork();
-    
+
     // === 清理 ===
     Cleanup();
 }

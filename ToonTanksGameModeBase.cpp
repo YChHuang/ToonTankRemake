@@ -32,13 +32,17 @@ void AToonTanksGameModeBase::ActorDied(AActor* DeadActor)
 	}
 }
 
+//Šß‰Æ€–Sç´S
 void AToonTanksGameModeBase::HandlePlayerDeath()
 {
+	//ŒÄ‹©Pawn“I©šÊ
 	PlayerTank->HandlePlayerDestruction();
+	//Ÿ“¾T§Ü
 	if (ToonTanksPlayerController)
 	{
 		ToonTanksPlayerController->SetPlayerEnabledState(false);
 	}
+	//GameOver:: false == lose, true == win
 	GameOver(false);
 }
 
@@ -51,13 +55,13 @@ void AToonTanksGameModeBase::HandleNPCDeath(ABasePawn* DestroyedPawn)
 
 	if (EnemyRemainCount > 0) return;
 
-	if (remainWave == 0)
+	if (RemainWave == 0)
 	{
 		GameOver(true);
 	}
 	else
 	{
-		remainWave--;
+		RemainWave--;
 		StartNextWave();
 	}
 }
@@ -66,7 +70,7 @@ void AToonTanksGameModeBase::StartNextWave()
 {
 	if (SpawnManager)
 	{
-		SpawnManager->StartWave(++currentWave);
+		SpawnManager->StartWave(++CurrentWave);
 	}
 	else
 	{
@@ -100,7 +104,7 @@ void AToonTanksGameModeBase::StartWave()
 	if (SpawnManager)
 	{
 		SpawnManager->OnWaveStart.AddDynamic(this, &AToonTanksGameModeBase::HandleWaveStart);
-		SpawnManager->StartWave(currentWave);
+		SpawnManager->StartWave(CurrentWave);
 
 	}
 }

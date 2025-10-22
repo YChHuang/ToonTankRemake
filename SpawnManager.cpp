@@ -6,6 +6,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "EnemySpawner.h"
 
+
+// TODO: []
+// FIXME: []
+// HACK: []
+// NOTE: []
+
 // Sets default values
 ASpawnManager::ASpawnManager()
 {
@@ -16,29 +22,41 @@ ASpawnManager::ASpawnManager()
 
 void ASpawnManager::StartWave(int WaveIndex)
 {
-
-	if (WaveIndex > waveConfig.Num())
+	// === 參數驗證 ===
+	if (!WaveConfigs.IsValidIndex(WaveIndex))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("invalid wave"));
 		return;
 	}
-	currentWave = WaveIndex;
-	currentEnemyCount = waveConfig[currentWave];
-	OnWaveStart.Broadcast(currentEnemyCount);
-	
 
-	UE_LOG(LogTemp, Warning, TEXT("Wave %d start!!"), currentWave);
+
+	if (SpawnerList.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No spawners found in level! Cannot start wave."));
+		return;
+	}
+
+	// === 初始化波次狀態 ===
+	CurrentWave = WaveIndex;
+	CurrentEnemyCount = WaveConfigs[CurrentWave];
+	// 通知 GameMode
+	OnWaveStart.Broadcast(CurrentEnemyCount);
+	
+	// === 開始生成計時器 ===
+	// 每 SpawnInterval 秒生成一個敵人,直到本波次配額用完
+	UE_LOG(LogTemp, Warning, TEXT("Wave %d start!!"), CurrentWave);
 	GetWorldTimerManager().SetTimer(
 		WaveTimerHandle,
 		this,
 		&ASpawnManager::handleWave,
-		2.0f,
+		SpawnInterval,
 		true
 	);
 }
 
 void ASpawnManager::handleWave()
 {
+	//作為計時器的觸發函數
 	if (SpawnerList.Num() <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("There's no any spawner"))
@@ -61,8 +79,8 @@ void ASpawnManager::handleWave()
 
 void ASpawnManager::handleEnemySpawn(ABasePawn* SpawnedEnemy)
 {
-	currentEnemyCount--;
-	if (currentEnemyCount == 0)
+	CurrentEnemyCount--;
+	if (CurrentEnemyCount == 0)
 	{
 		//pause timer
 		GetWorldTimerManager().PauseTimer(WaveTimerHandle);
@@ -76,7 +94,7 @@ void ASpawnManager::BeginPlay()
 	Super::BeginPlay();
 
 	
-
+	// === 尋找世界中的spawner ===
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemySpawner::StaticClass(), FoundActors);
 	for (AActor* Actor : FoundActors)
@@ -90,7 +108,7 @@ void ASpawnManager::BeginPlay()
 
 	for (AEnemySpawner* spawner : SpawnerList)
 	{
-		
+		//訂閱spawner
 		spawner->OnEnemySpawned.AddDynamic(this, &ASpawnManager::handleEnemySpawn);
 	}
 	
