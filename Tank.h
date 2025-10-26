@@ -1,0 +1,101 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "BasePawn.h"
+#include "InputAction.h"
+#include "TankPawnMovementComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Tank.generated.h"
+
+
+/**
+ * 
+ */
+UCLASS()
+class TOONTANKS_API ATank : public ABasePawn
+{
+	GENERATED_BODY()
+	
+public:
+	ATank();
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	void HandlePlayerDestruction();
+
+	void HandleDestruction();
+
+	APlayerController* GetTankPlayerController() const { return TankPlayerController; }
+
+	
+
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputMappingContext* TankMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* MoveAction;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* FireAction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	UTankPawnMovementComponent* MovementComponent;
+
+	virtual UPawnMovementComponent* GetMovementComponent() const override;
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class USpringArmComponent* SpringArmComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class UCameraComponent* CameraComp;
+
+	void RotateSpringArm();
+	
+	void Move(const FInputActionValue& inValue);
+
+	void Turn(const FInputActionValue& inValue);
+
+	bool GetAimingPoint(FVector& OutPoint) const;
+
+	void OnLook(const FInputActionValue& Value);
+
+	float GetPitchFromSlopeNormal(const FVector& Normal, const FVector& Forward);
+
+	float ViewportCenterX = 0.f;
+
+	float ViewportCenterY = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	float AimSensitivity = 1000.f;
+	
+	bool bHasGamepadInput = false;
+
+	FVector CachedGamepadAimPoint;
+
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float Speed = 400.f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float TurnRate = 200.f;
+
+	APlayerController* TankPlayerController;
+};
