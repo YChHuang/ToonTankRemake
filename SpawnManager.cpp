@@ -7,10 +7,7 @@
 #include "EnemySpawner.h"
 
 
-// TODO: []
-// FIXME: []
-// HACK: []
-// NOTE: []
+
 
 // Sets default values
 ASpawnManager::ASpawnManager()

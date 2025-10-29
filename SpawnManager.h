@@ -6,28 +6,16 @@
 #include "GameFramework/Actor.h"
 #include "SpawnManager.generated.h"
 
-//
-// SpawnManager - 波次生成管理器
-// 
-//  職責:
-//  - 管理多個 EnemySpawner
-//  - 根據波次配置定時生成敵人
-//  - 追蹤生成進度並通知 GameMode
-// 
-//  使用方式:
-//  1. 在關卡中放置多個 EnemySpawner
-//  2. GameMode 呼叫 StartWave(WaveIndex)
-//  3. 透過 OnWaveStart/OnEnemySpawned 接收事件
-// 
-//  波次流程:
-//  GameMode::StartWave()
-//    → SpawnManager::StartWave()
-//      → 啟動 Timer (每 SpawnInterval 秒)
-//        → SpawnEnemyTick()
-//          → 隨機選 Spawner
-//          → Spawner::SpawnEnemy()
-//            → 觸發 OnEnemySpawned
- 
+/*SpawnManager - 波次生成管理器
+* 職責：
+*	GM透過工廠模式生成，同步訂閱FOnWaveStart
+*	可根據波次配置用定時器生成敵人
+*	可管理多個EnemySpawner
+* 使用方法：
+*	在關卡中放置多個EnemySpawner
+*	OnWaveStart/OnEnemySpawned 接收事件
+
+*/
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveStart, int32, WaveEnemies);
 

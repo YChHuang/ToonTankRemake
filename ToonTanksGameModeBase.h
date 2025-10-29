@@ -7,6 +7,13 @@
 #include "GameFramework/GameModeBase.h"
 #include "ToonTanksGameModeBase.generated.h"
 
+/*ToonTanksGameModeBase - GameMode
+* 職責：
+*	處理玩家死亡
+*	處理NPC死亡
+*	控制勝利條件
+*/
+
 
 //
 //  ToonTanksGameModeBase - GameMode入口
