@@ -7,14 +7,18 @@
 #include "InputAction.h"
 #include "TankPawnMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
+#include "GAS_Tank.h"
 #include "Tank.generated.h"
 
 
 /**
- * 
+ * 得理解繼承多個的意思
+ *
  */
 UCLASS()
-class TOONTANKS_API ATank : public ABasePawn
+class TOONTANKS_API ATank : public ABasePawn, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
@@ -24,7 +28,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	
+	//GAS官方文件的設置初始化
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
+	{
+		return AbilitySystemComponent;
+	}
+
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -58,6 +67,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	UTankPawnMovementComponent* MovementComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
+	UAbilitySystemComponent* AbilitySystemComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
+	class UABS_Tank* ABS_Tank;
+
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
 
 private:
@@ -76,6 +90,10 @@ private:
 	bool GetAimingPoint(FVector& OutPoint) const;
 
 	void OnLook(const FInputActionValue& Value);
+
+	void PossessedBy(AController* NewController);
+
+	void GAS_fire(const FInputActionValue& inValue);
 
 	float GetPitchFromSlopeNormal(const FVector& Normal, const FVector& Forward);
 

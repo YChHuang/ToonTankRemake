@@ -26,6 +26,8 @@ public:
 
 	UStaticMeshComponent* GetTurret();
 	UStaticMeshComponent* GetBase();
+	USceneComponent* GetProjectileSpawnPoint();
+	 
 
 	void Fire();
 	bool isAlive();

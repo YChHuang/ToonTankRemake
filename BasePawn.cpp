@@ -82,6 +82,11 @@ UStaticMeshComponent* ABasePawn::GetBase()
 	return BaseMesh;
 }
 
+USceneComponent* ABasePawn::GetProjectileSpawnPoint()
+{
+	return ProjectileSpawnPoint;
+}
+
 UStaticMeshComponent* ABasePawn::GetTurret()
 {
 	if (TurretMesh)

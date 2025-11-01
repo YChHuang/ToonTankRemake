@@ -10,6 +10,8 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
+#include "ABS_Tank.h"
+#include "GA_LaserFire.h"
 
 
 
@@ -26,6 +28,9 @@ ATank::ATank()
 
 	MovementComponent = CreateDefaultSubobject<UTankPawnMovementComponent>(TEXT("MovementComponent"));
 	MovementComponent->UpdatedComponent = RootComponent;
+
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	ABS_Tank = CreateDefaultSubobject<UABS_Tank>(TEXT("AttributeSet"));
 
 }
 
@@ -48,7 +53,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 		if (FireAction)
 		{
-			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ATank::Fire);
+			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ATank::GAS_fire);
 		}
 
 		if (LookAction)
@@ -120,10 +125,21 @@ void ATank::BeginPlay()
 	Super::BeginPlay();
 
 	TankPlayerController = Cast<APlayerController>(GetController());
-
+	
 	
 	if (TankPlayerController)
 	{
+		// GAS call ASC
+		PossessedBy(TankPlayerController);
+
+		if (AbilitySystemComponent && HasAuthority())
+		{
+			AbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(UGA_LaserFire::StaticClass(), 1, 0)
+			);
+		}
+
+		//EIS
 		int32 ViewportSizeX, ViewportSizeY;
 		TankPlayerController->GetViewportSize(ViewportSizeX, ViewportSizeY);
 
@@ -141,6 +157,37 @@ void ATank::BeginPlay()
 	}
 
 	
+}
+
+void ATank::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (HasAuthority() && AbilitySystemComponent)
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+		FGameplayAbilitySpec LaserFireSpec(
+			UGA_LaserFire::StaticClass(), // 技能類型
+			1,                             // 技能等級
+			INDEX_NONE,                    // InputID (先不綁定輸入)
+			this                           // SourceObject (誰給的這個技能)
+		);
+
+		AbilitySystemComponent->GiveAbility(LaserFireSpec);
+
+		UE_LOG(LogTemp, Warning, TEXT("LaserFire ability granted!"));
+
+	}
+}
+
+void ATank::GAS_fire(const FInputActionValue& inValue)
+{
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+	AbilitySystemComponent->TryActivateAbilityByClass(UGA_LaserFire::StaticClass());
 }
 
 
