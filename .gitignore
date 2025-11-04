@@ -1,0 +1,28 @@
+# Unreal Engine build artifacts
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# IDE files
+.vs/
+.idea/
+*.VC.db
+*.sln
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# User-specific config
+*.user
+*.opensdf
+*.suo
+*.log
+
+# Ignore crash reports
+*.dmp
+
+# Build system
+*.xcodeproj
+*.xcworkspace
