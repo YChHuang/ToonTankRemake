@@ -70,24 +70,22 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ATank::RotateSpringArm()
 {
-	if (TurretMesh && SpringArmComp)
+	if (!TurretMesh || !SpringArmComp)
 	{
-		float CurrentYaw = SpringArmComp->GetRelativeRotation().Yaw;
-		float TargetYaw = TurretMesh->GetComponentRotation().Yaw;
-
-		// 計算最短角度差
-		float DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentYaw, TargetYaw);
-
-		// 插值速度
-		float InterpSpeed = 10.f;
-
-		// 平滑更新Yaw
-		float NewYaw = CurrentYaw + DeltaYaw * FMath::Clamp(GetWorld()->GetDeltaSeconds() * InterpSpeed, 0.f, 1.f);
-
-		FRotator NewRotation = SpringArmComp->GetRelativeRotation();
-		NewRotation.Yaw = NewYaw * 0.1;
-		SpringArmComp->SetRelativeRotation(NewRotation);
+		return;
 	}
+
+	FRotator CurrentRotation = SpringArmComp->GetComponentRotation();
+	FRotator TargetRotation = TurretMesh->GetComponentRotation();
+
+	// 計算角度差，考慮循環
+	float DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentRotation.Yaw, TargetRotation.Yaw);
+
+	// 插值 Yaw（考慮最短路徑）
+	float NewYaw = CurrentRotation.Yaw + FMath::FInterpTo(0.f, DeltaYaw, GetWorld()->GetDeltaSeconds(), 10.f);
+
+	CurrentRotation.Yaw = NewYaw;
+	SpringArmComp->SetWorldRotation(CurrentRotation);
 }
 
 void ATank::Tick(float DeltaTime)

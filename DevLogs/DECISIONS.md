@@ -116,3 +116,23 @@
   6. GameplayAbility最好建立BP子類，方便注入指標
   7. 建立一個繼承自GameEffect的BP，在裡面指定AttributeSet.Attribute
   8. 在BP的GA內，找到cost標籤，並指向步驟7.GE，這樣就完成消耗設定了
+
+## 日期: 2025-11-07
+
+- 決策: 重寫RotateSpringArm
+- 原因:
+  1. 時好時壞，有時候會亂轉
+  2. 錯用世界座標與相對座標做轉換
+     ```
+     float CurrentYaw = SpringArmComp->GetRelativeRotation().Yaw
+     
+     float TargetYaw = TurretMesh->GetComponentRotation().Yaw;
+     ```
+- 日誌：
+  嘗試都修改為GetComponentRotation()
+  
+  新問題是用FMath::FInterpTo 會在轉到底時出現大旋轉
+  
+  先用FMath::FindDeltaAngleDegrees解決
+- 學習筆記：
+  1. 專案要讓未來的自己與別人看得懂
