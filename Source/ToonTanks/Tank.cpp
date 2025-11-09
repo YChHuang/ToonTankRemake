@@ -22,6 +22,8 @@ ATank::ATank()
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->SetUsingAbsoluteRotation(false);
+	SpringArmComp->SetUsingAbsoluteLocation(false);
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComp->SetupAttachment(SpringArmComp);

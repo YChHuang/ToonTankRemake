@@ -134,5 +134,14 @@
   新問題是用FMath::FInterpTo 會在轉到底時出現大旋轉
   
   先用FMath::FindDeltaAngleDegrees解決
-- 學習筆記：
-  1. 專案要讓未來的自己與別人看得懂
+
+  ## 日期: 2025-11-09
+
+- 決策: 製作RotationAlignSlope邏輯
+- 日誌：
+  1. 在原版爬坡很怪，pitch沒跟著動，當時沒搞懂為何
+  2. 後來發現是SlideAlongSurface會把hit洗掉
+  3. 但整個綁定樹和旋轉砲塔有出了些問題
+  4. 把SetUsingAbsoluteLocation/Rotation設定成false即可
+  5. 旋轉要改成AddRelativeRotation
+  

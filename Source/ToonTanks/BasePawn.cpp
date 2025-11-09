@@ -22,6 +22,8 @@ ABasePawn::ABasePawn()
 
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turrent Mesh"));
 	TurretMesh->SetupAttachment(BaseMesh);
+	TurretMesh->SetUsingAbsoluteLocation(false);
+	TurretMesh->SetUsingAbsoluteRotation(false);
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Projectile SpawnPoint"));
 	ProjectileSpawnPoint->SetupAttachment(TurretMesh);
@@ -70,10 +72,9 @@ void ABasePawn::RotateTurret(const FInputActionValue& Value)
 
 	float DeltaYaw = LookInput * Sensitivity * UGameplayStatics::GetWorldDeltaSeconds(this);
 
-	FRotator CurrentRotation = TurretMesh->GetComponentRotation();
-	CurrentRotation.Yaw += DeltaYaw;
+	FRotator DeltaRotation(0.f, DeltaYaw, 0.f);
 
-	TurretMesh->SetWorldRotation(CurrentRotation);
+	TurretMesh->AddRelativeRotation(DeltaRotation);
 
 }
 
