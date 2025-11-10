@@ -20,16 +20,22 @@ ATank::ATank()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//@TODO: Fix Rotation while pitch is changing
+
+
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->SetUsingAbsoluteRotation(false);
-	SpringArmComp->SetUsingAbsoluteLocation(false);
+	SpringArmComp->SetupAttachment(BaseMesh);
+	//SpringArmComp->bInheritPitch = false;
+	//SpringArmComp->bInheritYaw = false;
+	//SpringArmComp->bInheritRoll = false;
+
+	
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComp->SetupAttachment(SpringArmComp);
 
 	MovementComponent = CreateDefaultSubobject<UTankPawnMovementComponent>(TEXT("MovementComponent"));
-	MovementComponent->UpdatedComponent = RootComponent;
+	MovementComponent->UpdatedComponent = BaseMesh;
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	ABS_Tank = CreateDefaultSubobject<UABS_Tank>(TEXT("AttributeSet"));
@@ -85,9 +91,8 @@ void ATank::RotateSpringArm()
 
 	// 插值 Yaw（考慮最短路徑）
 	float NewYaw = CurrentRotation.Yaw + FMath::FInterpTo(0.f, DeltaYaw, GetWorld()->GetDeltaSeconds(), 10.f);
-
 	CurrentRotation.Yaw = NewYaw;
-	SpringArmComp->SetWorldRotation(CurrentRotation);
+	SpringArmComp->SetRelativeRotation(CurrentRotation);
 }
 
 void ATank::Tick(float DeltaTime)
@@ -212,6 +217,10 @@ void ATank::GAS_fire(const FInputActionValue& inValue)
 
 void ATank::Move(const FInputActionValue& inValue)
 {
+	if (!BaseMesh || !MovementComponent)
+	{
+		return;
+	}
 	float InputValue = inValue.Get<float>();
 
 
@@ -221,7 +230,7 @@ void ATank::Move(const FInputActionValue& inValue)
 
 	if (MovementComponent && InputValue != 0.f)
 	{
-		FVector Forward = GetActorForwardVector();
+		FVector Forward = BaseMesh->GetForwardVector();
 		MovementComponent->AddInputVector(Forward * InputValue);
 	}
 
@@ -235,11 +244,17 @@ UPawnMovementComponent* ATank::GetMovementComponent() const
 
 void ATank::Turn(const FInputActionValue& inValue)
 {
+
+	if (!BaseMesh)
+	{
+		return;
+	}
+
 	float InputValue = inValue.Get<float>();
 	FRotator DeltaRotation = FRotator::ZeroRotator;
 	//Yaw = Value * Deltatime * TurnRate
 	DeltaRotation.Yaw = InputValue * TurnRate * UGameplayStatics::GetWorldDeltaSeconds(this);
-	AddActorLocalRotation(DeltaRotation, true);
+	BaseMesh->AddLocalRotation(DeltaRotation);
 }
 
 bool ATank::GetAimingPoint(FVector& OutPoint) const

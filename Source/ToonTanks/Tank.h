@@ -71,6 +71,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	class UABS_Tank* ABS_Tank;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	USceneComponent* CameraPivot;
+
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
 
 private:

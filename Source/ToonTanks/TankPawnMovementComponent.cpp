@@ -34,24 +34,24 @@ void UTankPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
             SlideAlongSurface(DesiredMove, 1.f - Hit.Time, Hit.Normal, Hit);
 
 
-            // Align rotation to the slope
-            const FVector CurrentForward = UpdatedComponent->GetForwardVector();
+            //// Align rotation to the slope
+            //const FVector CurrentForward = UpdatedComponent->GetForwardVector();
 
-            // Project current forward vector onto the slope plane to keep it tangent to the surface
-            FVector ForwardOnSlope = FVector::VectorPlaneProject(CurrentForward, SlopeNormal).GetSafeNormal();
-            UE_LOG(LogTemp, Warning, TEXT("slope normal vector is : %s"), *ForwardOnSlope.ToString());
+            //// Project current forward vector onto the slope plane to keep it tangent to the surface
+            //FVector ForwardOnSlope = FVector::VectorPlaneProject(CurrentForward, SlopeNormal).GetSafeNormal();
+            //UE_LOG(LogTemp, Warning, TEXT("slope normal vector is : %s"), *ForwardOnSlope.ToString());
 
 
-            // Create a rotation with forward aligned to ForwardOnSlope and up aligned to SlopeNormal
-            FRotator TargetRotation = FRotationMatrix::MakeFromXZ(ForwardOnSlope, SlopeNormal).Rotator();
+            //// Create a rotation with forward aligned to ForwardOnSlope and up aligned to SlopeNormal
+            //FRotator TargetRotation = FRotationMatrix::MakeFromXZ(ForwardOnSlope, SlopeNormal).Rotator();
 
-            // Smooth rotation for better visual
-            FRotator CurrentRotation = UpdatedComponent->GetComponentRotation();
-            float SlopeAlignSpeed = 10.0f; // Adjust for smoothing speed
-            FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, SlopeAlignSpeed);
+            //// Smooth rotation for better visual
+            //FRotator CurrentRotation = UpdatedComponent->GetComponentRotation();
+            //float SlopeAlignSpeed = 10.0f; // Adjust for smoothing speed
+            //FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, SlopeAlignSpeed);
 
-            UE_LOG(LogTemp, Warning, TEXT("NewRotation after interp: %s"), *NewRotation.ToString());
-            UpdatedComponent->SetWorldRotation(NewRotation);
+            //UE_LOG(LogTemp, Warning, TEXT("NewRotation after interp: %s"), *NewRotation.ToString());
+            //UpdatedComponent->SetWorldRotation(NewRotation);
         }
         else
         {
