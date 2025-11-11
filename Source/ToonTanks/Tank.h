@@ -58,10 +58,13 @@ protected:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	class UInputAction* LookAction;
+	class UInputAction* RotateTurretAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* FireAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* TurnTankAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	UTankPawnMovementComponent* MovementComponent;
@@ -101,7 +104,6 @@ private:
 
 	void GAS_fire(const FInputActionValue& inValue);
 
-	float GetPitchFromSlopeNormal(const FVector& Normal, const FVector& Forward);
 
 	float ViewportCenterX = 0.f;
 
@@ -119,7 +121,7 @@ private:
 	float Speed = 400.f;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
-	float TurnRate = 200.f;
+	float TurnRate = 50.f;
 
 	APlayerController* TankPlayerController;
 };

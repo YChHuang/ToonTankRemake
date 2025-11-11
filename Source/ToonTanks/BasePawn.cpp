@@ -22,8 +22,12 @@ ABasePawn::ABasePawn()
 
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turrent Mesh"));
 	TurretMesh->SetupAttachment(BaseMesh);
-	TurretMesh->SetUsingAbsoluteLocation(false);
-	TurretMesh->SetUsingAbsoluteRotation(false);
+	TurretMesh->SetAbsolute(false, true, false);
+
+
+	//TurretMesh->SetUsingAbsoluteLocation(false);
+	//TurretMesh->SetUsingAbsoluteRotation(true);
+	
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Projectile SpawnPoint"));
 	ProjectileSpawnPoint->SetupAttachment(TurretMesh);

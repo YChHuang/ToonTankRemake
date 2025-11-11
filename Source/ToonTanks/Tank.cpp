@@ -22,20 +22,14 @@ ATank::ATank()
 
 	//@TODO: Fix Rotation while pitch is changing
 
-
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArmComp->SetupAttachment(BaseMesh);
-	//SpringArmComp->bInheritPitch = false;
-	//SpringArmComp->bInheritYaw = false;
-	//SpringArmComp->bInheritRoll = false;
-
-	
+	SpringArmComp->SetupAttachment(RootComponent);
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComp->SetupAttachment(SpringArmComp);
 
 	MovementComponent = CreateDefaultSubobject<UTankPawnMovementComponent>(TEXT("MovementComponent"));
-	MovementComponent->UpdatedComponent = BaseMesh;
+	MovementComponent->UpdatedComponent = RootComponent;
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	ABS_Tank = CreateDefaultSubobject<UABS_Tank>(TEXT("AttributeSet"));
@@ -53,27 +47,24 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	if (EnhancedInputComponent) 
 	{
-		if (MoveAction && MoveTurn)
+		if (MoveAction)
 		{
 			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATank::Move);
-			EnhancedInputComponent->BindAction(MoveTurn, ETriggerEvent::Triggered, this, &ATank::Turn);
 		}
-
+		if (TurnTankAction)
+		{
+			EnhancedInputComponent->BindAction(TurnTankAction, ETriggerEvent::Triggered, this, &ATank::Turn);
+		}
 		if (FireAction)
 		{
 			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ATank::GAS_fire);
 		}
 
-		if (LookAction)
+		if (RotateTurretAction)
 		{
-			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ATank::RotateTurret);
+			EnhancedInputComponent->BindAction(RotateTurretAction, ETriggerEvent::Triggered, this, &ATank::RotateTurret);
 		}
 	}
-
-	//old input from tutorial
-	//PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ATank::Move);
-	//PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ATank::Turn);
-	//PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ATank::Fire);
 }
 
 void ATank::RotateSpringArm()
@@ -101,15 +92,6 @@ void ATank::Tick(float DeltaTime)
 
 
 	RotateSpringArm();
-
-	//FVector AimPoint;
-	//if (GetAimingPoint(AimPoint))
-	//{
-	//	RotateTurret(AimPoint);
-	//}
-
-
-	//RotateTurret(AimPoint);
 }
 
 void ATank::HandlePlayerDestruction()
@@ -223,11 +205,6 @@ void ATank::Move(const FInputActionValue& inValue)
 	}
 	float InputValue = inValue.Get<float>();
 
-
-	//FVector DeltaLocation = FVector::ZeroVector;
-	//DeltaLocation.X = InputValue * Speed * UGameplayStatics::GetWorldDeltaSeconds(this);
-	//AddActorLocalOffset(DeltaLocation, true);
-
 	if (MovementComponent && InputValue != 0.f)
 	{
 		FVector Forward = BaseMesh->GetForwardVector();
@@ -242,19 +219,18 @@ UPawnMovementComponent* ATank::GetMovementComponent() const
 	return MovementComponent;
 }
 
+
 void ATank::Turn(const FInputActionValue& inValue)
 {
-
 	if (!BaseMesh)
 	{
 		return;
 	}
-
 	float InputValue = inValue.Get<float>();
 	FRotator DeltaRotation = FRotator::ZeroRotator;
-	//Yaw = Value * Deltatime * TurnRate
 	DeltaRotation.Yaw = InputValue * TurnRate * UGameplayStatics::GetWorldDeltaSeconds(this);
 	BaseMesh->AddLocalRotation(DeltaRotation);
+
 }
 
 bool ATank::GetAimingPoint(FVector& OutPoint) const
@@ -316,15 +292,3 @@ void ATank::OnLook(const FInputActionValue& Value)
 }
 
 
-float ATank::GetPitchFromSlopeNormal(const FVector& Normal, const FVector& Forward)
-{
-	// Project forward vector on slope plane
-	FVector ForwardOnSlope = FVector::VectorPlaneProject(Forward, Normal).GetSafeNormal();
-
-	// Calculate angle between forward and its projection (signed pitch)
-	float AngleRad = FMath::Atan2(Normal.Z, FVector::DotProduct(Forward, Normal));
-	float PitchDegrees = FMath::RadiansToDegrees(AngleRad);
-
-	// Clamp pitch if needed, e.g. between -45 to 45 degrees
-	return FMath::Clamp(PitchDegrees, -45.f, 45.f);
-}
