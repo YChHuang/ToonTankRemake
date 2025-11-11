@@ -76,7 +76,7 @@
 - [ ] 爬坡時SpringArm會亂轉
 
 ## 📖 開發日誌
-詳細的技術決策、問題排查與學習筆記請見 [DEVLOG.md](DEVLOG/DECISIONS.md)
+詳細的技術決策、問題排查與學習筆記請見 [DEVLOG.md](DevLogs/DECISIONS.md)
 
 **控制方式**：
 - MOUSE&KEYBOARD
