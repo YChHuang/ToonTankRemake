@@ -18,6 +18,8 @@ class TOONTANKS_API UTankPawnMovementComponent : public UPawnMovementComponent
 {
 	GENERATED_BODY()
 
+protected:
+	virtual void BeginPlay() override;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")

@@ -91,7 +91,7 @@ void ATank::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	RotateSpringArm();
+	/*RotateSpringArm();*/
 
 }
 
@@ -224,15 +224,13 @@ UPawnMovementComponent* ATank::GetMovementComponent() const
 
 void ATank::Turn(const FInputActionValue& inValue)
 {
-	if (!BaseMesh)
-	{
-		return;
-	}
+
 	float InputValue = inValue.Get<float>();
 	FRotator DeltaRotation = FRotator::ZeroRotator;
 	DeltaRotation.Yaw = InputValue * TurnRate * UGameplayStatics::GetWorldDeltaSeconds(this);
-	BaseMesh->AddLocalRotation(DeltaRotation);
-
+	//BaseMesh->AddLocalRotation(DeltaRotation);
+	AddActorLocalRotation(DeltaRotation);
+	UE_LOG(LogTemp, Error, TEXT("Turning"));
 }
 
 bool ATank::GetAimingPoint(FVector& OutPoint) const
