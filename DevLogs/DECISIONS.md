@@ -135,13 +135,27 @@
   
   先用FMath::FindDeltaAngleDegrees解決
 
-  ## 日期: 2025-11-09
+## 日期: 2025-11-09
 
 - 決策: 製作RotationAlignSlope邏輯
 - 日誌：
-  1. 在原版爬坡很怪，pitch沒跟著動，當時沒搞懂為何
+  1. 邏輯理論上能運作，但pitch始終沒跟著動，當時沒搞懂為何
   2. 後來發現是SlideAlongSurface會把hit洗掉
-  3. 但整個綁定樹和旋轉砲塔有出了些問題
+  3. 但整個綁定樹和旋轉砲塔實作的效果會很怪
   4. 把SetUsingAbsoluteLocation/Rotation設定成false即可
   5. 旋轉要改成AddRelativeRotation
+  6. 仍有許多未知bug
+  
+## 日期: 2025-11-12
+
+- 決策: 在MovementCoponent內完善RotationAlignSlope邏輯與修正錯誤
+- 日誌：
+  1. 某次微調改了turn的邏輯，原本是動整個Actor，改成了改動底盤的Mesh，讓砲塔始終指著玩家的畫面中心
+  2. 雖然1.讓操控坦克的手感變得很好，但爬坡邏輯壞掉了
+  3. 無論如何只能對著世界x軸朝向的斜坡操作，此外出現孤輪時，會強制轉到世界x軸的方向
+  4. 查了半天才發現，Actor的rotator始終保持在(0, 0, 0)
+  5. 先捨棄掉那個很酷的turn，邏輯就完善了
+  6. 排查中還發現，我在tickcomponent內宣告不少初始變數，在MovementComponent內也複寫一個beginplay
+  7. 排查中順便把旋轉邏輯改成四元數
+  8. TODO : 在不讓邏輯出現怪異問題時，變得像1.
   
