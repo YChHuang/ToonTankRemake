@@ -18,14 +18,44 @@ void UTankPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
         
 
     FVector DesiredMove = ConsumeInputVector().GetClampedToMaxSize(1.f) * MoveSpeed * DeltaTime;
+    /*UE_LOG(LogTemp, Warning, TEXT("ConsumeInputVector : %s"), *ConsumeInputVector().ToString());*/
     if (!DesiredMove.IsNearlyZero())
     {
         FHitResult Hit;
+        
+
         SafeMoveUpdatedComponent(DesiredMove, UpdatedComponent->GetComponentRotation(), true, Hit);
 
         UE_LOG(LogTemp, Warning, TEXT("SafeMoveUpdatedComponent done. Hit blocking: %s"), Hit.IsValidBlockingHit() ? TEXT("True") : TEXT("False"));
 
-        if (Hit.IsValidBlockingHit())
+        //if (hit.isvalidblockinghit())
+        //{
+
+        //    fvector slopenormal = hit.normal; // 先存下來
+
+
+        //    // @todo hit傳進後會壞掉
+        //    slidealongsurface(desiredmove, 1.f - hit.time, hit.normal, hit);
+
+
+        //    // @todo updaterootwillcausesomeproblem
+        //    TankActor = getowner();
+        //        
+        //    if (tankactor)
+        //    {
+        //        meshcomp = tankactor->findcomponentbyclass<ustaticmeshcomponent>();
+        //    }
+
+        //    if (meshcomp)
+        //    {
+
+        TankActor = GetOwner();
+        if (TankActor)
+        {
+            MeshComp = TankActor->FindComponentByClass<UStaticMeshComponent>();
+        }
+
+        if (Hit.IsValidBlockingHit() && MeshComp)
         {
 
             FVector SlopeNormal = Hit.Normal; // 先存下來
@@ -47,14 +77,14 @@ void UTankPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
             FRotator TargetRotation = FRotationMatrix::MakeFromXZ(ForwardOnSlope, SlopeNormal).Rotator();
 
             // Smooth rotation for better visual
-            FRotator CurrentRotation = UpdatedComponent->GetComponentRotation();
+            FRotator CurrentRotation = MeshComp->GetComponentRotation();
             float SlopeAlignSpeed = 10.0f; // Adjust for smoothing speed
             FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, SlopeAlignSpeed);
 
             UE_LOG(LogTemp, Warning, TEXT("NewRotation after interp: %s"), *NewRotation.ToString());
 
             // @TODO UpdateRootWillCauseSomeProblem
-            UpdatedComponent->SetWorldRotation(NewRotation);
+            MeshComp->SetWorldRotation(NewRotation);
 
         }
         else

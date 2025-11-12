@@ -22,7 +22,7 @@ ABasePawn::ABasePawn()
 
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turrent Mesh"));
 	TurretMesh->SetupAttachment(BaseMesh);
-	TurretMesh->SetAbsolute(false, true, false);
+	/*TurretMesh->SetAbsolute(false, true, false);*/
 
 
 	//TurretMesh->SetUsingAbsoluteLocation(false);

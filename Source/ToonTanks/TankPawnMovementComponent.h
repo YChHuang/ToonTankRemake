@@ -22,4 +22,8 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	FVector LastGroundNormal = FVector::UpVector;
+
+private:
+	UStaticMeshComponent* MeshComp;
+	AActor* TankActor;
 };

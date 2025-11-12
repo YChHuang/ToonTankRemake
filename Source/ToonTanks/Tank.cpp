@@ -204,9 +204,11 @@ void ATank::Move(const FInputActionValue& inValue)
 		return;
 	}
 	float InputValue = inValue.Get<float>();
+	
 
 	if (MovementComponent && InputValue != 0.f)
 	{
+		/*UE_LOG(LogTemp, Warning, TEXT("Move input : %f"), InputValue);*/
 		FVector Forward = BaseMesh->GetForwardVector();
 		MovementComponent->AddInputVector(Forward * InputValue);
 	}
