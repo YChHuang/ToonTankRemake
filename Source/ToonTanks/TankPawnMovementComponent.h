@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,9 +6,13 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "TankPawnMovementComponent.generated.h"
 
-/**
- * 
- */
+/*TankPawnMovementComponent - 坦克移動掛件
+* 職責：
+*	對底盤的向量移動
+*	爬坡
+*	爬坡時轉動roll和pitch以切齊斜坡
+*	基礎重力墜落模擬
+*/
 UCLASS()
 class TOONTANKS_API UTankPawnMovementComponent : public UPawnMovementComponent
 {

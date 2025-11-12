@@ -13,7 +13,6 @@ ABasePawn::ABasePawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Collider"));
-	//TODO: Find out what is it do.
 	CapsuleComp->SetCollisionProfileName(TEXT("Pawn"));
 	RootComponent = CapsuleComp;
 
@@ -22,12 +21,9 @@ ABasePawn::ABasePawn()
 
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turrent Mesh"));
 	TurretMesh->SetupAttachment(BaseMesh);
+
+	// It's looking good on small slope, but if the slope too large well be very weird
 	/*TurretMesh->SetAbsolute(false, true, false);*/
-
-
-	//TurretMesh->SetUsingAbsoluteLocation(false);
-	//TurretMesh->SetUsingAbsoluteRotation(true);
-	
 
 	ProjectileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Projectile SpawnPoint"));
 	ProjectileSpawnPoint->SetupAttachment(TurretMesh);

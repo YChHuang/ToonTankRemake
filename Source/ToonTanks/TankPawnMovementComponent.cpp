@@ -15,7 +15,15 @@ void UTankPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
         UE_LOG(LogTemp, Warning, TEXT("Tick skipped: PawnOwner or UpdatedComponent invalid, or ShouldSkipUpdate is true"));
         return;
     }
-        
+    TankActor = GetOwner();
+    if (TankActor)
+    {
+        MeshComp = TankActor->FindComponentByClass<UStaticMeshComponent>();
+    }
+
+    FRotator StartRotation = UpdatedComponent->GetComponentRotation();
+    UE_LOG(LogTemp, Warning, TEXT("=== Tick Start === Rotation: P=%f Y=%f R=%f"),
+        StartRotation.Pitch, StartRotation.Yaw, StartRotation.Roll);
 
     FVector DesiredMove = ConsumeInputVector().GetClampedToMaxSize(1.f) * MoveSpeed * DeltaTime;
     /*UE_LOG(LogTemp, Warning, TEXT("ConsumeInputVector : %s"), *ConsumeInputVector().ToString());*/
@@ -28,69 +36,45 @@ void UTankPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
 
         UE_LOG(LogTemp, Warning, TEXT("SafeMoveUpdatedComponent done. Hit blocking: %s"), Hit.IsValidBlockingHit() ? TEXT("True") : TEXT("False"));
 
-        //if (hit.isvalidblockinghit())
-        //{
-
-        //    fvector slopenormal = hit.normal; // 先存下來
-
-
-        //    // @todo hit傳進後會壞掉
-        //    slidealongsurface(desiredmove, 1.f - hit.time, hit.normal, hit);
-
-
-        //    // @todo updaterootwillcausesomeproblem
-        //    TankActor = getowner();
-        //        
-        //    if (tankactor)
-        //    {
-        //        meshcomp = tankactor->findcomponentbyclass<ustaticmeshcomponent>();
-        //    }
-
-        //    if (meshcomp)
-        //    {
-
-        TankActor = GetOwner();
-        if (TankActor)
-        {
-            MeshComp = TankActor->FindComponentByClass<UStaticMeshComponent>();
-        }
-
         if (Hit.IsValidBlockingHit() && MeshComp)
         {
 
-            FVector SlopeNormal = Hit.Normal; // 先存下來
+            FVector SlopeNormal = Hit.Normal; // hit傳進SlideAlongSurface後會洗掉一些資訊，先存下normal
+            const float MaxSlopeAngle = 60.0f;
+            float SlopeAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(SlopeNormal, FVector::UpVector)));
+
+            if (SlopeAngle <= MaxSlopeAngle)
+            {
+                SlideAlongSurface(DesiredMove, 1.f - Hit.Time, Hit.Normal, Hit);
+
+                // Align rotation to the slope
+                const FVector CurrentForward = UpdatedComponent->GetForwardVector();
+
+                FVector ForwardOnSlope = FVector::VectorPlaneProject(CurrentForward, SlopeNormal).GetSafeNormal();
+
+                UE_LOG(LogTemp, Warning, TEXT("CurrentForward: %s"), *CurrentForward.ToString());
+                UE_LOG(LogTemp, Warning, TEXT("ForwardOnSlope: %s"), *ForwardOnSlope.ToString());
 
 
-            // @TODO hit傳進後會壞掉
-            SlideAlongSurface(DesiredMove, 1.f - Hit.Time, Hit.Normal, Hit);
+                if (!ForwardOnSlope.IsNearlyZero(0.01f))
+                {
+                    FRotator TargetRotation = FRotationMatrix::MakeFromXZ(ForwardOnSlope, SlopeNormal).Rotator();
 
+                    FRotator CurrentRotation = MeshComp->GetComponentRotation();
+                    float SlopeAlignSpeed = 10.0f;
+                    FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, SlopeAlignSpeed);
 
-            // Align rotation to the slope
-            const FVector CurrentForward = UpdatedComponent->GetForwardVector();
-
-            // Project current forward vector onto the slope plane to keep it tangent to the surface
-            FVector ForwardOnSlope = FVector::VectorPlaneProject(CurrentForward, SlopeNormal).GetSafeNormal();
-            UE_LOG(LogTemp, Warning, TEXT("slope normal vector is : %s"), *ForwardOnSlope.ToString());
-
-
-            // Create a rotation with forward aligned to ForwardOnSlope and up aligned to SlopeNormal
-            FRotator TargetRotation = FRotationMatrix::MakeFromXZ(ForwardOnSlope, SlopeNormal).Rotator();
-
-            // Smooth rotation for better visual
-            FRotator CurrentRotation = MeshComp->GetComponentRotation();
-            float SlopeAlignSpeed = 10.0f; // Adjust for smoothing speed
-            FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, SlopeAlignSpeed);
-
-            UE_LOG(LogTemp, Warning, TEXT("NewRotation after interp: %s"), *NewRotation.ToString());
-
-            // @TODO UpdateRootWillCauseSomeProblem
-            MeshComp->SetWorldRotation(NewRotation);
-
+                    MeshComp->SetWorldRotation(NewRotation);
+                }
+                else
+                {
+                    // 垂直牆壁，只執行滑動,不調整旋轉
+                    SlideAlongSurface(DesiredMove, 1.f - Hit.Time, Hit.Normal, Hit);
+                }
+ 
+            }
         }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("No blocking hit detected; skipping slope alignment."));
-        }
+        
     }
 
 
@@ -98,13 +82,10 @@ void UTankPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
 
     //____Gravity_____
     const float Gravity = -980.f; // cm/s^2
-
     // Velocity with vertical gravity applied
     Velocity.Z += Gravity * DeltaTime;
-
     // Compute movement including vertical velocity
     FVector Delta = Velocity * DeltaTime;
-
     // Move with sweep to respect ground collisions
     FHitResult Hit;
     SafeMoveUpdatedComponent(Delta, UpdatedComponent->GetComponentRotation(), true, Hit);
@@ -114,8 +95,32 @@ void UTankPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
         SlideAlongSurface(Delta, 1.f - Hit.Time, Hit.Normal, Hit);
         Velocity.Z = 0.f; // Reset vertical velocity on ground contact
 
+        // 檢查是否在平地上，如果是就回正 Pitch 和 Roll
+        if (MeshComp)
+        {
+            float GroundAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(Hit.Normal, FVector::UpVector)));
+
+            if (GroundAngle < 5.0f) // 接近平地
+            {
+                FRotator CurrentRotation = MeshComp->GetComponentRotation();
+                // 只回正 Pitch 和 Roll，保持 Yaw 不變
+                FRotator TargetRotation = FRotator(0.0f, CurrentRotation.Yaw, 0.0f);
+
+                float ResetSpeed = 1.0f;
+                FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, ResetSpeed);
+                MeshComp->SetWorldRotation(NewRotation);
+
+                UE_LOG(LogTemp, Warning, TEXT("Resetting: Current P=%f Y=%f R=%f -> Target P=%f Y=%f R=%f"),
+                    CurrentRotation.Pitch, CurrentRotation.Yaw, CurrentRotation.Roll,
+                    TargetRotation.Pitch, TargetRotation.Yaw, TargetRotation.Roll);
+            }
+        }
     }
 
 
+    FRotator EndRotation = UpdatedComponent->GetComponentRotation();
+    UE_LOG(LogTemp, Warning, TEXT("=== Tick End === Rotation: P=%f Y=%f R=%f (Delta Yaw=%f)"),
+        EndRotation.Pitch, EndRotation.Yaw, EndRotation.Roll,
+        EndRotation.Yaw - StartRotation.Yaw);
 
 }

@@ -93,10 +93,6 @@ void ATank::Tick(float DeltaTime)
 
 	RotateSpringArm();
 
-	FRotator BaseRotation = BaseMesh->GetComponentRotation();
-	FRotator TurretRotation = TurretMesh->GetComponentRotation();
-
-
 }
 
 void ATank::HandlePlayerDestruction()
@@ -111,7 +107,6 @@ void ATank::HandleDestruction()
 }
 
 
-// Called when the game starts or when spawned
 void ATank::BeginPlay()
 {
 	Super::BeginPlay();
@@ -243,7 +238,7 @@ void ATank::Turn(const FInputActionValue& inValue)
 bool ATank::GetAimingPoint(FVector& OutPoint) const
 {
 
-	if (bHasGamepadInput) // 之後我們會設這個旗標
+	if (bHasGamepadInput) 
 	{
 		OutPoint = CachedGamepadAimPoint;
 		return true;
@@ -259,43 +254,9 @@ bool ATank::GetAimingPoint(FVector& OutPoint) const
 		OutPoint = HitResult.ImpactPoint;
 		return true;
 	}
-	//else if (AIController)
-	//{
-	//	OutPoint = AIController->GetTargetLocation();
-	//	return true;
-	//}
+
 	return false;
 }
 
-void ATank::OnLook(const FInputActionValue& Value)
-{
-	FVector2D LookInput = Value.Get<FVector2D>();
-
-
-	if (!LookInput.IsNearlyZero())
-	{
-		// 1. 把搖桿方向轉成世界方向
-		FVector WorldDirection;
-		FVector WorldOrigin;
-		TankPlayerController->DeprojectScreenPositionToWorld(
-			ViewportCenterX + LookInput.X * AimSensitivity,
-			ViewportCenterY - LookInput.Y * AimSensitivity,
-			/*Out*/ WorldOrigin,
-			/*Out*/ WorldDirection
-		);
-
-		// 2. 射線檢測
-		FHitResult Hit;
-		FVector Start = WorldOrigin;
-		FVector End = Start + WorldDirection * 100000.f;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility))
-		{
-			
-			CachedGamepadAimPoint = Hit.ImpactPoint;
-			UE_LOG(LogTemp, Warning, TEXT("HasGamePadInput"))
-			bHasGamepadInput = true;
-		}
-	}
-}
 
 

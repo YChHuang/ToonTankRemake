@@ -13,7 +13,6 @@ class TOONTANKS_API ABasePawn : public APawn
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
 	ABasePawn();
 
 	void HandleDestruction();
@@ -44,14 +43,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* BaseMesh;
 
-	
-
 private:
-
-
-
-
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ComponentOfCpp", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* ProjectileSpawnPoint;
 

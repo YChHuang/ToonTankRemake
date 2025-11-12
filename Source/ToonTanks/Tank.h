@@ -27,14 +27,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	//GAS官方文件的設置初始化
+	// 照著GAS官方文件的設置初始化
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
 	{
 		return AbilitySystemComponent;
 	}
 
 
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	void HandlePlayerDestruction();
@@ -47,7 +46,6 @@ public:
 
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -97,8 +95,6 @@ private:
 	void Turn(const FInputActionValue& inValue);
 
 	bool GetAimingPoint(FVector& OutPoint) const;
-
-	void OnLook(const FInputActionValue& Value);
 
 	void PossessedBy(AController* NewController);
 
