@@ -78,7 +78,9 @@ void ABasePawn::RotateTurret(const FInputActionValue& Value)
 
 	FRotator DeltaRotation(0.f, DeltaYaw, 0.f);
 
-	TurretMesh->AddRelativeRotation(DeltaRotation);
+
+	TurretMesh->AddLocalRotation(DeltaRotation);
+	/*TurretMesh->AddRelativeRotation(DeltaRotation);*/
 
 }
 

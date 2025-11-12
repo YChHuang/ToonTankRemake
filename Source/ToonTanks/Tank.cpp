@@ -92,6 +92,11 @@ void ATank::Tick(float DeltaTime)
 
 
 	RotateSpringArm();
+
+	FRotator BaseRotation = BaseMesh->GetComponentRotation();
+	FRotator TurretRotation = TurretMesh->GetComponentRotation();
+
+
 }
 
 void ATank::HandlePlayerDestruction()
