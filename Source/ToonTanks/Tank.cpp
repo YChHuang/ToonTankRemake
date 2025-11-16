@@ -24,6 +24,11 @@ ATank::ATank()
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->bUsePawnControlRotation = false; // 確保不被 Pawn 控制
+	SpringArmComp->bInheritPitch = false;
+	SpringArmComp->bInheritYaw = false;
+	SpringArmComp->bInheritRoll = false;
+	SpringArmComp->SetUsingAbsoluteRotation(true);
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComp->SetupAttachment(SpringArmComp);
@@ -91,7 +96,7 @@ void ATank::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	/*RotateSpringArm();*/
+	RotateSpringArm();
 
 
 
@@ -232,7 +237,7 @@ void ATank::Turn(const FInputActionValue& inValue)
 	DeltaRotation.Yaw = InputValue * TurnRate * UGameplayStatics::GetWorldDeltaSeconds(this);
 	//BaseMesh->AddLocalRotation(DeltaRotation);
 	AddActorLocalRotation(DeltaRotation);
-	UE_LOG(LogTemp, Error, TEXT("Turning"));
+
 }
 
 bool ATank::GetAimingPoint(FVector& OutPoint) const

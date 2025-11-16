@@ -29,7 +29,21 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	FVector LastGroundNormal = FVector::UpVector;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slope Alignment")
+	float MaxSlopeAngle = 60.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slope Alignment")
+	float SlopeAlignSpeed = 10.0f;
+
 private:
 	UStaticMeshComponent* MeshComp;
 	AActor* TankActor;
+
+	void HandleHorizontalMovement(float DeltaTime);
+
+	void HandleGravityAndVerticalMovement(float DeltaTime);
+
+	bool IsWalkableSlope(const FVector& SlopeNormal, float& OutSlopeAngle) const;
+
+	void AlignMeshToSlope(const FHitResult& Hit, float DeltaTime, FVector SlopeNormal);
 };
