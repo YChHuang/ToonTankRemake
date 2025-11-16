@@ -13,7 +13,10 @@
 
 
 /**
- * 得理解繼承多個的意思
+ * 坦克本體
+ * 可以暴露給AIController
+ * 需使用MovementComponent移動
+ * 已部屬GAS
  *
  */
 UCLASS()

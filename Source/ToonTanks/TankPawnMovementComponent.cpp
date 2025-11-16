@@ -78,7 +78,6 @@ void UTankPawnMovementComponent::HandleGravityAndVerticalMovement(float DeltaTim
         SlideAlongSurface(Delta, 1.f - Hit.Time, Hit.Normal, Hit);
         Velocity.Z = 0.f;
 
-        // 平地回正 Actor 的旋轉
         float GroundAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(Hit.Normal, FVector::UpVector)));
 
         if (GroundAngle < 5.0f && TankActor)
@@ -89,7 +88,7 @@ void UTankPawnMovementComponent::HandleGravityAndVerticalMovement(float DeltaTim
             float ResetSpeed = 5.0f;
             FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, ResetSpeed);
 
-            TankActor->SetActorRotation(NewRotation); // ✅ 使用 Set，不是 Add
+            TankActor->SetActorRotation(NewRotation);
         }
     }
 }
@@ -106,28 +105,20 @@ bool UTankPawnMovementComponent::IsWalkableSlope(const FVector& SlopeNormal, flo
 void UTankPawnMovementComponent::AlignMeshToSlope(const FHitResult& Hit, float DeltaTime, FVector SlopeNormal)
 {
     
-
-    // 轉換到本地空間
     FVector LocalSlopeNormal = UpdatedComponent->GetComponentTransform().InverseTransformVectorNoScale(SlopeNormal);
 
-    // 本地前進方向
     FVector LocalForward = FVector(1, 0, 0);
-
-    // 投影到斜坡平面
     FVector LocalForwardOnSlope = FVector::VectorPlaneProject(LocalForward, LocalSlopeNormal);
 
     if (LocalForwardOnSlope.SizeSquared() < 0.01f)
     {
-        // 投影失敗，不更新旋轉
         return;
     }
 
     LocalForwardOnSlope.Normalize();
 
-    // 構建目標旋轉
     FRotator TargetRelativeRotation = FRotationMatrix::MakeFromXZ(LocalForwardOnSlope, LocalSlopeNormal).Rotator();
 
-    // 平滑插值到目標旋轉
     FRotator CurrentRelativeRotation = MeshComp->GetRelativeRotation();
     FRotator NewRelativeRotation = FMath::RInterpTo(
         CurrentRelativeRotation,
@@ -139,5 +130,4 @@ void UTankPawnMovementComponent::AlignMeshToSlope(const FHitResult& Hit, float D
     
     TankActor->AddActorLocalRotation(NewRelativeRotation);
 
-    /*MeshComp->SetRelativeRotation(NewRelativeRotation);*/
 }

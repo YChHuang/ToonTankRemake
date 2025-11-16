@@ -17,14 +17,11 @@
 
 ATank::ATank()
 {
-	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	//@TODO: Fix Rotation while pitch is changing
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->bUsePawnControlRotation = false; // 確保不被 Pawn 控制
+	SpringArmComp->bUsePawnControlRotation = false; 
 	SpringArmComp->bInheritPitch = false;
 	SpringArmComp->bInheritYaw = false;
 	SpringArmComp->bInheritRoll = false;
@@ -82,10 +79,8 @@ void ATank::RotateSpringArm()
 	FRotator CurrentRotation = SpringArmComp->GetComponentRotation();
 	FRotator TargetRotation = TurretMesh->GetComponentRotation();
 
-	// 計算角度差，考慮循環
 	float DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentRotation.Yaw, TargetRotation.Yaw);
 
-	// 插值 Yaw（考慮最短路徑）
 	float NewYaw = CurrentRotation.Yaw + FMath::FInterpTo(0.f, DeltaYaw, GetWorld()->GetDeltaSeconds(), 10.f);
 	CurrentRotation.Yaw = NewYaw;
 	SpringArmComp->SetRelativeRotation(CurrentRotation);
@@ -196,7 +191,7 @@ void ATank::GAS_fire(const FInputActionValue& inValue)
 		const UABS_Tank* AttrSet = AbilitySystemComponent->GetSet<UABS_Tank>();
 		if (AttrSet)
 		{
-			float CurrentAmmo = AttrSet->GetAmmo(); // 這裡用 ATTRIBUTE_ACCESSORS 產生的 Getter
+			float CurrentAmmo = AttrSet->GetAmmo();
 			UE_LOG(LogTemp, Warning, TEXT("Current Ammo: %f"), CurrentAmmo);
 		}
 	}
@@ -215,7 +210,6 @@ void ATank::Move(const FInputActionValue& inValue)
 
 	if (MovementComponent && InputValue != 0.f)
 	{
-		/*UE_LOG(LogTemp, Warning, TEXT("Move input : %f"), InputValue);*/
 		FVector Forward = BaseMesh->GetForwardVector();
 		MovementComponent->AddInputVector(Forward * InputValue);
 	}
@@ -235,7 +229,6 @@ void ATank::Turn(const FInputActionValue& inValue)
 	float InputValue = inValue.Get<float>();
 	FRotator DeltaRotation = FRotator::ZeroRotator;
 	DeltaRotation.Yaw = InputValue * TurnRate * UGameplayStatics::GetWorldDeltaSeconds(this);
-	//BaseMesh->AddLocalRotation(DeltaRotation);
 	AddActorLocalRotation(DeltaRotation);
 
 }

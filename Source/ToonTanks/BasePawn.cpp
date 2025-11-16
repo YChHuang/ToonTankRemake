@@ -22,9 +22,6 @@ ABasePawn::ABasePawn()
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turrent Mesh"));
 	TurretMesh->SetupAttachment(BaseMesh);
 
-	// It's looking good on small slope, but if the slope too large well be very weird
-	/*TurretMesh->SetAbsolute(false, true, false);*/
-
 	ProjectileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Projectile SpawnPoint"));
 	ProjectileSpawnPoint->SetupAttachment(TurretMesh);
 }
@@ -74,9 +71,7 @@ void ABasePawn::RotateTurret(const FInputActionValue& Value)
 
 	FRotator DeltaRotation(0.f, DeltaYaw, 0.f);
 
-
 	TurretMesh->AddLocalRotation(DeltaRotation);
-	/*TurretMesh->AddRelativeRotation(DeltaRotation);*/
 
 }
 

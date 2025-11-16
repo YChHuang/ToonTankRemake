@@ -7,7 +7,6 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/TimerHandle.h"
 
-// TurretAIController.cpp
 void ATurretAIController::OnPossess(APawn* InPawn)
 {
     Super::OnPossess(InPawn);
@@ -37,10 +36,7 @@ void ATurretAIController::Tick(float DeltaSeconds)
 
         if (FMath::Abs(YawOffset) > AimTolerance)
         {
-            // 計算這幀最多能轉多少
             float MaxStep = RotationSpeed * DeltaSeconds;
-
-            // 限制旋轉量，避免瞬間跳轉
             float Step = FMath::Clamp(YawOffset, -MaxStep, MaxStep);
 
             Target->RotateTurret(Step);
@@ -54,10 +50,10 @@ bool ATurretAIController::InFireRange()
 	if (Player && Target)
 	{
 		float Distance = FVector::Dist(Player->GetActorLocation(), Target->GetActorLocation());
-		// Check to see if the tank is in range
+
 		if (Distance < FireRange)
 		{
-			// if in rnage, rotate turret toward tank
+
 			return true;
 		}
 
@@ -69,26 +65,21 @@ float ATurretAIController::GetYawOffsetToFaceTarget(const UStaticMeshComponent* 
 {
     if (!TowerPtr || !PlayerPtr)
     {
-        return 0.f; // 任一為空，偏移量為 0
+        return 0.f; 
     }
 
 
-    // 取得兩者位置
     FVector SourceLocation = TowerPtr->GetComponentLocation();
     FVector TargetLocation = PlayerPtr->GetActorLocation();
 
-    // 計算目標方向（忽略 Z 高度）
     FVector Direction = (TargetLocation - SourceLocation);
     Direction.Z = 0.f;
     Direction.Normalize();
 
-    // 取得 A 目前的 Yaw
     float CurrentYaw = TowerPtr->GetComponentRotation().Yaw;
 
-    // 計算 A 面向 B 所需的目標 Yaw
     float TargetYaw = Direction.Rotation().Yaw;
 
-    // 計算偏移量（範圍 -180 ~ 180）
     float YawOffset = FMath::FindDeltaAngleDegrees(CurrentYaw, TargetYaw);
 
     return YawOffset;
