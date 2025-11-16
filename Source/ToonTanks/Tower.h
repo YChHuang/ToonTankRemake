@@ -29,17 +29,6 @@ protected:
 private:
 
 	class ATank* Tank;
-
-	//bool InFireRange();
-	
-	// TurretPawn.h
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	UPROPERTY(EditDefaultsOnly, Category = "AIController")
 	TSubclassOf<class AAIController> AutoControllerClass;
-
-	//UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	//float FireRange = 600.f;
-
-	//FTimerHandle FireRateTimerHandle;
-	//float FireRate = 2.f;
-	//void CheckFireCondition();
 };

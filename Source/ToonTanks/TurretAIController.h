@@ -32,11 +32,25 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	float FireRate = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	float AcceptanceRadius = 200.f;
+
+
 	
 	FTimerHandle FireRateTimerHandle;
 
 	float GetYawOffsetToFaceTarget(const UStaticMeshComponent* TowerPtr, const ABasePawn* TankPtr);
 	void CheckFireCondition();
+
+	void MoveTowardsPlayer();
+
+	//LimitRotation
+	const float AimTolerance = 1.f;
+	//speed degree/sec
+	const float RotationSpeed = 300.f;
+
+	void RotateTowardsPlayer();
 };
 
 

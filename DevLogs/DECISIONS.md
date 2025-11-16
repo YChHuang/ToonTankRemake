@@ -159,3 +159,28 @@
   7. 排查中順便把旋轉邏輯改成四元數
   8. TODO : 在不讓邏輯出現怪異問題時，變得像1.
   
+
+## 日期: 2025-11-16
+
+- 決策: 封裝MovementComponent
+- 日誌：
+  1. 功能已大多開發完成，將邏輯封裝增加可讀性
+
+- 決策: 幫坦克增加尋路邏輯
+- 日誌：
+  1. 先前幫砲塔做的AI控制器可以直接套給坦克，讚嘆多型
+  2. 先做了直線找到玩家的邏輯，但實在太詭異
+  3. 要使用UE的A*，必須得用UNavMovementComponent，導致原本繼承自UPawnMovementComponent的邏輯失效
+  4. 得重寫MovementComponent安排模擬PawnMovementComponent，以及必須把PawnOwner找回，模擬後可以不太變動內部邏輯
+    ```
+    	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
+      void AddInputVector(FVector WorldVector, bool bForce = false);
+
+      UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
+      FVector ConsumeInputVector();
+
+      UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
+      FVector GetPendingInputVector() const { return PendingInputVector; }
+    ```
+  5. 測試完成後，已經會巡路追殺玩家了，但發現會詭異飄移
+  6. 所以先安排旋轉到玩家方向，不是最佳解，但沒那麼詭異了

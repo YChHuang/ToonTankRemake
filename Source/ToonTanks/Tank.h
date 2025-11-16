@@ -19,11 +19,15 @@
  * ›ß•”›¢GAS
  *
  */
+
 UCLASS()
+
+
 class TOONTANKS_API ATank : public ABasePawn, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
+class UNavMovementComponent;
 public:
 	ATank();
 
@@ -78,7 +82,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	USceneComponent* CameraPivot;
 
-	virtual UPawnMovementComponent* GetMovementComponent() const override;
+	/*virtual UNavMovementComponent* GetMovementComponent() const override;*/
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -123,4 +127,8 @@ private:
 	float TurnRate = 50.f;
 
 	APlayerController* TankPlayerController;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "AIController")
+	TSubclassOf<class AAIController> AutoControllerClass;
 };

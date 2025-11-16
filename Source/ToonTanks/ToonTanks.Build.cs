@@ -17,8 +17,9 @@ public class ToonTanks : ModuleRules
 			"AIModule",
 			"GameplayAbilities",
     		"GameplayTags",
-    		"GameplayTasks"
-			 });
+    		"GameplayTasks",
+            "NavigationSystem"
+             });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

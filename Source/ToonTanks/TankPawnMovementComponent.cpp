@@ -8,6 +8,7 @@ void UTankPawnMovementComponent::BeginPlay()
 {
     Super::BeginPlay();
     TankActor = GetOwner();
+    PawnOwner = Cast<APawn>(GetOwner());
     if (TankActor)
     {
         MeshComp = TankActor->FindComponentByClass<UStaticMeshComponent>();
@@ -23,6 +24,7 @@ void UTankPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     PrimaryComponentTick.bCanEverTick = true;
 
+
     if (!PawnOwner || !UpdatedComponent || ShouldSkipUpdate(DeltaTime))
     {
         return;
@@ -36,7 +38,12 @@ void UTankPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
 
 void UTankPawnMovementComponent::HandleHorizontalMovement(float DeltaTime)
 {
+    
     FVector DesiredMove = ConsumeInputVector().GetClampedToMaxSize(1.f) * MoveSpeed * DeltaTime;
+
+    /*UE_LOG(LogTemp, Warning, TEXT("MoveForwardVector is : %s"), *DesiredMove.ToString());*/
+
+    
 
     if (DesiredMove.IsNearlyZero())
     {
@@ -130,4 +137,37 @@ void UTankPawnMovementComponent::AlignMeshToSlope(const FHitResult& Hit, float D
     
     TankActor->AddActorLocalRotation(NewRelativeRotation);
 
+}
+
+void UTankPawnMovementComponent::AddInputVector(FVector WorldVector, bool bForce)
+{
+    /*UE_LOG(LogTemp, Warning, TEXT("MoveForwardVector is : %s"), *WorldVector.ToString());*/
+    PendingInputVector += WorldVector;
+}
+
+
+void UTankPawnMovementComponent::RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed)
+{
+
+    if (!MoveVelocity.IsZero())
+    {
+        FVector Direction = MoveVelocity.GetSafeNormal();
+        AddInputVector(Direction, true);
+    }
+}
+
+void UTankPawnMovementComponent::RequestPathMove(const FVector& MoveInput)
+{
+    if (!MoveInput.IsZero())
+    {
+        AddInputVector(MoveInput, true);
+    }
+}
+
+FVector UTankPawnMovementComponent::ConsumeInputVector()
+{
+    FVector Result = PendingInputVector;
+    PendingInputVector = FVector::ZeroVector;
+    /*UE_LOG(LogTemp, Warning, TEXT("MoveForwardVector is : %s"), *Result.ToString());*/
+    return Result;
 }

@@ -5,8 +5,8 @@
 
 UABS_Tank::UABS_Tank()
 {
-    Ammo.SetBaseValue(30.f);
-    Ammo.SetCurrentValue(30.f);
+    Ammo.SetBaseValue(70.f);
+    Ammo.SetCurrentValue(70.f);
     //MaxAmmo.SetBaseValue(30.f);
     //MaxAmmo.SetCurrentValue(30.f);
 }

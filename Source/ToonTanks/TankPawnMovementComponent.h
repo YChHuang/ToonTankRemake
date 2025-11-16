@@ -14,7 +14,7 @@
 *	基礎重力墜落模擬
 */
 UCLASS()
-class TOONTANKS_API UTankPawnMovementComponent : public UPawnMovementComponent
+class TOONTANKS_API UTankPawnMovementComponent : public UNavMovementComponent
 {
 	GENERATED_BODY()
 
@@ -22,6 +22,10 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	virtual void RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed) override;
+	virtual void RequestPathMove(const FVector& MoveInput) override;
+	virtual bool CanStopPathFollowing() const override { return true; }
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MoveSpeed = 600.f;
 
@@ -35,6 +39,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slope Alignment")
 	float SlopeAlignSpeed = 10.0f;
 
+
+
+
+	// 模仿UPawnMovementComponent的接口
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
+	void AddInputVector(FVector WorldVector, bool bForce = false);
+
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
+	FVector ConsumeInputVector();
+
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
+	FVector GetPendingInputVector() const { return PendingInputVector; }
+
+
 private:
 	UStaticMeshComponent* MeshComp;
 	AActor* TankActor;
@@ -46,4 +64,9 @@ private:
 	bool IsWalkableSlope(const FVector& SlopeNormal, float& OutSlopeAngle) const;
 
 	void AlignMeshToSlope(const FHitResult& Hit, float DeltaTime, FVector SlopeNormal);
+
+	APawn* PawnOwner;
+
+	FVector PendingInputVector;
+
 };

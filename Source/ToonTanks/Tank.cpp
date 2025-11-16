@@ -12,6 +12,7 @@
 #include "InputAction.h"
 #include "ABS_Tank.h"
 #include "GA_LaserFire.h"
+#include "AIController.h"
 
 
 
@@ -126,9 +127,6 @@ void ATank::BeginPlay()
 			AbilitySystemComponent->GiveAbility(
 				FGameplayAbilitySpec(LaserFireAbilityClass, 1, 0)
 			);
-
-
-
 		}
 
 		//EIS
@@ -146,6 +144,17 @@ void ATank::BeginPlay()
 		{
 			Subsystem->AddMappingContext(TankMappingContext, 0);
 		}
+	}
+	else if (AutoControllerClass)
+	{
+
+		//UE_LOG(LogTemp, Display, TEXT("Get controller"));
+		AAIController* AIController = GetWorld()->SpawnActor<AAIController>(AutoControllerClass);
+		if (AIController)
+		{
+			AIController->Possess(this);
+		}
+
 	}
 
 	
@@ -217,10 +226,10 @@ void ATank::Move(const FInputActionValue& inValue)
 }
 
 
-UPawnMovementComponent* ATank::GetMovementComponent() const
-{
-	return MovementComponent;
-}
+//UNavMovementComponent* ATank::GetMovementComponent() const
+//{
+//	return MovementComponent;
+//}
 
 
 void ATank::Turn(const FInputActionValue& inValue)
