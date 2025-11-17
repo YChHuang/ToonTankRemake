@@ -164,14 +164,17 @@
 
 - 決策: 封裝MovementComponent
 - 日誌：
-  1. 功能已大多開發完成，將邏輯封裝增加可讀性
+  1. 爬坡功能已開發完成，將邏輯封裝增加可讀性
+  2. 分支合併到main
 
 - 決策: 幫坦克增加尋路邏輯
 - 日誌：
-  1. 先前幫砲塔做的AI控制器可以直接套給坦克，讚嘆多型
-  2. 先做了直線找到玩家的邏輯，但實在太詭異
-  3. 要使用UE的A*，必須得用UNavMovementComponent，導致原本繼承自UPawnMovementComponent的邏輯失效
-  4. 得重寫MovementComponent安排模擬PawnMovementComponent，以及必須把PawnOwner找回，模擬後可以不太變動內部邏輯
+  1. 先前幫砲塔做的AI控制器可以直接套給坦克，是多型開發的意外成果，幾乎不用重寫邏輯
+  2. 先嘗試做了直線找到玩家的邏輯，但實在太詭異
+  3. 而後做了MoveToActor，得先部署NavMeshBoundsVolume，框住範圍就好，但UPawnMovementComponent會讓這方法實作變成瞬間移動，非常詭異
+  4. 要使用UE的A*，必須得用UNavMovementComponent，導致原本繼承自UPawnMovementComponent的邏輯失效
+  5. 重寫MovementComponent，將繼承對象改成UNavMovementComponent，模擬PawnMovementComponent原來的介面與接口(如下)，
+     以及必須把PawnOwner找回，模擬後依賴幾乎不辨，包含外部控制器輸入端注入數值
     ```
     	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
       void AddInputVector(FVector WorldVector, bool bForce = false);
@@ -182,5 +185,5 @@
       UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
       FVector GetPendingInputVector() const { return PendingInputVector; }
     ```
-  5. 測試完成後，已經會巡路追殺玩家了，但發現會詭異飄移
-  6. 所以先安排旋轉到玩家方向，不是最佳解，但沒那麼詭異了
+  6. 測試完成後，已經會巡路追殺玩家了，但發現會螃蟹走路
+  7. 所以先安排旋轉到玩家方向，不是最佳解，仍有機率看到螃蟹走路，但數量顯著減少
