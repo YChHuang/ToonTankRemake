@@ -155,9 +155,9 @@
   3. 無論如何只能對著世界x軸朝向的斜坡操作，此外出現孤輪時，會強制轉到世界x軸的方向
   4. 查了半天才發現，Actor的rotator始終保持在(0, 0, 0)
   5. 先捨棄掉那個很酷的turn，邏輯就完善了
-  6. 排查中還發現，我在tickcomponent內宣告不少初始變數，在MovementComponent內也複寫一個beginplay
-  7. 排查中順便把旋轉邏輯改成四元數
-  8. TODO : 在不讓邏輯出現怪異問題時，變得像1.
+  6. 排查中還發現，我在tickcomponent內宣告不少初始變數，一直反覆宣告，所以在MovementComponent內也複寫一個beginplay
+  7. ~~排查中順便把旋轉邏輯改成四元數~~
+  8. ~~TODO : 在不讓邏輯出現怪異問題時，變得像1.~~
   
 
 ## 日期: 2025-11-16
@@ -169,7 +169,7 @@
 
 - 決策: 幫坦克增加尋路邏輯
 - 日誌：
-  1. 先前幫砲塔做的AI控制器可以直接套給坦克，是多型開發的意外成果，幾乎不用重寫邏輯
+  1. 先前幫砲塔做的AI控制器可以直接套給坦克，是先前遵守多型開發的意外成果，幾乎不用重寫邏輯，用cast提供邏輯入口後直接寫尋路邏輯
   2. 先嘗試做了直線找到玩家的邏輯，但實在太詭異
   3. 而後做了MoveToActor，得先部署NavMeshBoundsVolume，框住範圍就好，但UPawnMovementComponent會讓這方法實作變成瞬間移動，非常詭異
   4. 要使用UE的A*，必須得用UNavMovementComponent，導致原本繼承自UPawnMovementComponent的邏輯失效
