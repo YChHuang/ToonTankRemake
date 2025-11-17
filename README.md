@@ -17,21 +17,21 @@
 **開發時間**：2025/07 - 持續開發中  
 **UE 版本**：5.x
 
-## ✨ 技術亮點
+## 🛠 技術實作
 
 ### 1. Enhanced Input System 整合
 - 從舊版 Input 重構為 Enhanced Input
-- 統一 AI Controller 與 Player Controller 的輸入接口
-- **挑戰**：指標解引用導致崩潰 → 加入 nullptr 檢查
+- 重構與處理 AI Controller 與 Player Controller 的輸入接口
+- AI Controller是根據砲塔類敵人的基類實作，故可交由Tank/Tower共用
 
-### 2. 解耦合的生成系統
-- 使用 Multicast Delegate + 工廠模式
+### 2. 生成敵人系統
+- 使用 Multicast Delegate + 工廠模式，避免SCC
 - 動態掃描地面高度避免碰撞
-- **重構歷程**：從義大利麵代碼重構為符合 SOLID 原則
 
 ### 3. 物理移動系統
-- 自訂 Movement Component 處理爬坡
-- 實現 Pitch Align Slope（車身隨坡度旋轉）- 仍有bug
+- 自訂 Movement Component 處理爬坡與AI導航邏輯，玩家與AI可共用
+- 使用UNavMovementComponent，並且模擬UPawnMovementComponent的輸入邏輯
+- 利用向量運算，實現 Pitch Align Slope（車身隨坡度旋轉）
 - 解決 Spring Arm 相對/世界座標轉換問題
 
 ### 4. Gameplay Ability System (GAS)
@@ -46,34 +46,22 @@
   - Enhanced Input System
   - Gameplay Ability System
   - Custom Movement Component
-  - AI Controller + Behavior Tree (規劃中)
-
-## 📂 專案結構
-```
-/Content
-  /Blueprints
-    /Pawns   # Tank BP、AI Controller
-    /Abilities    # GAS 相關 BP
-    /Spawning     # 生成系統
-  /Maps
-/Source
-  /TankCombat
-    /Characters   # Pawn、Controller
-    /Components   # Movement、Health
-    /Abilities    # GAS C++ 實作
-```
+  - AI Controller (已部屬) + Behavior Tree (規劃中)
 
 ## 🎯 學習成果
-- ✅ 理解 UE5 的 Delegate 機制與解耦合設計
-- ✅ 掌握 GAS 基本流程與整合
-- ✅ 實踐重構與架構改進（從單一責任到模組化）
-- ✅ 養成寫註解與開發日誌的習慣
+-  理解 UE5 的 Delegate 機制與解耦合設計
+-  掌握 GAS 基本流程與整合
+-  實踐重構與架構改進（從單一責任到模組化）
+-  養成寫註解與開發日誌的習慣
+-  向量運算的瑛用
 
 ## 🚧 已知問題與改進方向
-- [ ] Health Component 尚未遷移到 GAS AttributeSet
-- [ ] 武器系統計畫改成切換系統
-- [ ] AI 決策邏輯待擴充（Behavior Tree）
-- [ ] 爬坡時SpringArm會亂轉
+- Health Component 尚未遷移到 GAS AttributeSet
+- 武器系統計畫改成切換系統
+- AI 決策邏輯待擴充（Behavior Tree）
+- ~~爬坡時SpringArm會亂轉~~
+- ~~Tank會怪異轉向世界X軸正向~~
+- AI尋路偶爾會出現螃蟹走路
 
 ## 📖 開發日誌
 詳細的技術決策、問題排查與學習筆記請見 [DEVLOG.md](DevLogs/DECISIONS.md)
