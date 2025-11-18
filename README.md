@@ -24,7 +24,7 @@
 **UE 版本**：5.5
 
 ## 📖 開發日誌
-詳細的技術決策、問題排查與學習筆記請見 [DEVLOG.md](DevLogs/DECISIONS.md)
+詳細的技術決策、問題排查與學習筆記請見 [DEVLOG.md](DevLogs/DevLog.md)
 
 ## 🛠 技術實作
 
