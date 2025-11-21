@@ -119,8 +119,6 @@ void ATank::BeginPlay()
 	
 	if (TankPlayerController)
 	{
-		// GAS call ASC
-		PossessedBy(TankPlayerController);
 
 		if (AbilitySystemComponent && HasAuthority())
 		{

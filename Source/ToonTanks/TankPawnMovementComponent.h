@@ -22,6 +22,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+
+	UTankPawnMovementComponent();
 	virtual void RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed) override;
 	virtual void RequestPathMove(const FVector& MoveInput) override;
 	virtual bool CanStopPathFollowing() const override { return true; }
