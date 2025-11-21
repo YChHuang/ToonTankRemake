@@ -7,7 +7,9 @@
 #include "TurretAIController.generated.h"
 
 /**
- * 
+ * ‘€TBasePawn”h¶—Ş
+ * Šî‘b’ŠÛ¥ùçzäoá¢Ëprojectile
+ * TODO:›’”‡ŒÂŠî—ŞÌ¬‰î–ÊC’B“DIP
  */
 UCLASS()
 class TOONTANKS_API ATurretAIController : public AAIController

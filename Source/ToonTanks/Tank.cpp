@@ -35,6 +35,9 @@ ATank::ATank()
 	MovementComponent->UpdatedComponent = RootComponent;
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
 	ABS_Tank = CreateDefaultSubobject<UABS_Tank>(TEXT("AttributeSet"));
 
 }
@@ -70,44 +73,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	}
 }
 
-void ATank::RotateSpringArm()
-{
-	if (!TurretMesh || !SpringArmComp)
-	{
-		return;
-	}
 
-	FRotator CurrentRotation = SpringArmComp->GetComponentRotation();
-	FRotator TargetRotation = TurretMesh->GetComponentRotation();
-
-	float DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentRotation.Yaw, TargetRotation.Yaw);
-
-	float NewYaw = CurrentRotation.Yaw + FMath::FInterpTo(0.f, DeltaYaw, GetWorld()->GetDeltaSeconds(), 10.f);
-	CurrentRotation.Yaw = NewYaw;
-	SpringArmComp->SetRelativeRotation(CurrentRotation);
-}
-
-void ATank::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-
-	RotateSpringArm();
-
-
-
-}
-
-void ATank::HandlePlayerDestruction()
-{
-	Super::HandlePlayerDestruction();
-	bAlive = false;
-}
-
-void ATank::HandleDestruction()
-{
-	Super::HandleDestruction();
-}
 
 
 void ATank::BeginPlay()
@@ -119,14 +85,6 @@ void ATank::BeginPlay()
 	
 	if (TankPlayerController)
 	{
-
-		if (AbilitySystemComponent && HasAuthority())
-		{
-			AbilitySystemComponent->GiveAbility(
-				FGameplayAbilitySpec(LaserFireAbilityClass, 1, 0)
-			);
-		}
-
 		//EIS
 		int32 ViewportSizeX, ViewportSizeY;
 		TankPlayerController->GetViewportSize(ViewportSizeX, ViewportSizeY);
@@ -145,43 +103,71 @@ void ATank::BeginPlay()
 	}
 	else if (AutoControllerClass)
 	{
-
 		//UE_LOG(LogTemp, Display, TEXT("Get controller"));
 		AAIController* AIController = GetWorld()->SpawnActor<AAIController>(AutoControllerClass);
 		if (AIController)
 		{
 			AIController->Possess(this);
 		}
-
 	}
-
 	
 }
+
+void ATank::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	RotateSpringArm();
+}
+
+
 
 void ATank::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+	//這方法只要複寫，不須呼叫，之前做錯了
 
 	if (HasAuthority() && AbilitySystemComponent)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 
-		FGameplayAbilitySpec LaserFireSpec(
-			UGA_LaserFire::StaticClass(), // 技能類型
-			1,                             // 技能等級
-			INDEX_NONE,                    // InputID (先不綁定輸入)
-			this                           // SourceObject (誰給的這個技能)
+		AbilitySystemComponent->GiveAbility(
+		FGameplayAbilitySpec(LaserFireAbilityClass, 1, INDEX_NONE, this)
 		);
-
-
-
-
-		AbilitySystemComponent->GiveAbility(LaserFireSpec);
 
 		UE_LOG(LogTemp, Warning, TEXT("LaserFire ability granted!"));
 
 	}
 }
+
+void ATank::RotateSpringArm()
+{
+	if (!TurretMesh || !SpringArmComp)
+	{
+		return;
+	}
+
+	FRotator CurrentRotation = SpringArmComp->GetComponentRotation();
+	FRotator TargetRotation = TurretMesh->GetComponentRotation();
+
+	float DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentRotation.Yaw, TargetRotation.Yaw);
+
+	float NewYaw = CurrentRotation.Yaw + FMath::FInterpTo(0.f, DeltaYaw, GetWorld()->GetDeltaSeconds(), 10.f);
+	CurrentRotation.Yaw = NewYaw;
+	SpringArmComp->SetRelativeRotation(CurrentRotation);
+}
+
+void ATank::HandlePlayerDestruction()
+{
+	Super::HandlePlayerDestruction();
+	bAlive = false;
+}
+
+void ATank::HandleDestruction()
+{
+	Super::HandleDestruction();
+}
+
 
 void ATank::GAS_fire(const FInputActionValue& inValue)
 {
@@ -224,15 +210,9 @@ void ATank::Move(const FInputActionValue& inValue)
 }
 
 
-//UNavMovementComponent* ATank::GetMovementComponent() const
-//{
-//	return MovementComponent;
-//}
-
-
 void ATank::Turn(const FInputActionValue& inValue)
 {
-
+	//TODO:將這個邏輯丟給movementComponent
 	float InputValue = inValue.Get<float>();
 	FRotator DeltaRotation = FRotator::ZeroRotator;
 	DeltaRotation.Yaw = InputValue * TurnRate * UGameplayStatics::GetWorldDeltaSeconds(this);
