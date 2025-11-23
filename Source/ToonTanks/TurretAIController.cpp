@@ -18,8 +18,8 @@ void ATurretAIController::OnPossess(APawn* InPawn)
     GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ATurretAIController::CheckFireCondition, FireRate, true);
     Target = Cast<ABasePawn>(InPawn);
 	Player = Cast<ABasePawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-    UE_LOG(LogTemp, Warning, TEXT("Target name is %s"), *Target->GetName());
-    UE_LOG(LogTemp, Warning, TEXT("Player name is %s"), *Player->GetName());
+    //UE_LOG(LogTemp, Warning, TEXT("Target name is %s"), *Target->GetName());
+    //UE_LOG(LogTemp, Warning, TEXT("Player name is %s"), *Player->GetName());
 }
 
 void ATurretAIController::Tick(float DeltaSeconds)
@@ -105,14 +105,12 @@ void ATurretAIController::CheckFireCondition()
 
 void ATurretAIController::MoveTowardsPlayer()
 {
-    // 檢查Player是否存在
     if (!Player)
     {
         UE_LOG(LogTemp, Error, TEXT("Player is NULL!"));
         return;
     }
 
-    // 獲取當前控制的Pawn
     APawn* ControlledPawn = GetPawn();
     if (!ControlledPawn)
     {
@@ -126,10 +124,10 @@ void ATurretAIController::MoveTowardsPlayer()
         Player->GetActorLocation()
     );
 
-    // 如果距離超過接受範圍，開始移動
+    // 如果距離超過，開始移動
     if (DistanceToPlayer > AcceptanceRadius)
     {
-        // 使用UE內建的A*尋路系統
+        // 筆記：使用UE內建的A*尋路系統
         EPathFollowingRequestResult::Type Result = MoveToActor(
             Player,              // 目標Actor
             AcceptanceRadius,    // 停止距離
@@ -137,22 +135,9 @@ void ATurretAIController::MoveTowardsPlayer()
             true,                // 使用尋路
             false,               // 不投影到導航網格
             nullptr,             // 過濾類別
-            true                 // 允許部分路徑
+            true                 
         );
 
-        // Debug：顯示移動結果
-        switch (Result)
-        {
-        case EPathFollowingRequestResult::RequestSuccessful:
-            UE_LOG(LogTemp, Display, TEXT("Moving to Player (Distance: %.0f)"), DistanceToPlayer);
-            break;
-        case EPathFollowingRequestResult::Failed:
-            UE_LOG(LogTemp, Warning, TEXT("MoveToActor Failed! Check NavMesh"));
-            break;
-        case EPathFollowingRequestResult::AlreadyAtGoal:
-            UE_LOG(LogTemp, Display, TEXT("Already at goal"));
-            break;
-        }
     }
     else
     {

@@ -4,6 +4,12 @@
 #include "TankPawnMovementComponent.h"
 #include "BasePawn.h"
 
+
+UTankPawnMovementComponent::UTankPawnMovementComponent()
+{
+    PrimaryComponentTick.bCanEverTick = true;
+}
+
 void UTankPawnMovementComponent::BeginPlay()
 {
     Super::BeginPlay();
@@ -22,7 +28,7 @@ void UTankPawnMovementComponent::BeginPlay()
 void UTankPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    PrimaryComponentTick.bCanEverTick = true;
+    
 
 
     if (!PawnOwner || !UpdatedComponent || ShouldSkipUpdate(DeltaTime))
