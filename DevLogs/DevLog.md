@@ -1,189 +1,184 @@
-# 開發日誌
+# Development Log
 
-## 日期: 2025-07-01
+## Date: 2025-07-01
 
-- 決策: 引入EnhancedInputSystem
-- 原因:
-  1. 舊版本Input略為過時
-  2. 更容易維護與資源更多
-  3. 更容易讓AIcontroller接手
-- 遇到的問題：
-  1. 時常崩潰。
-     解決方法：經過多次排查後，發現是對nullptr解引用造成的
-  2. IA, IMC, 綁定函式簽名混亂
-     解決方法：重做一遍熟悉。
-- 學習筆記：
-  1. 解指標前最好檢查null
-  2. IMC管理，IA負責方法抽象，實作方法統一由FInputActionValue& inValue get要的型別(bool, float, vector)
+- Decision: Introduce Enhanced Input System  
+- Reasons:  
+  1. Legacy Input system is somewhat outdated  
+  2. Easier to maintain with more resources available  
+  3. Easier for AIController to take over  
+- Issues Encountered:  
+  1. Frequent crashes.  
+     Solution: After multiple debugging sessions, found it was caused by dereferencing a nullptr.  
+  2. IA, IMC, and binding function signatures were confusing.  
+     Solution: Redid everything to become familiar again.  
+- Learning Notes:  
+  1. Always check for null before dereferencing pointers.  
+  2. IMC handles management, IA abstracts methods, and implementations consistently use `FInputActionValue& inValue` to get the required type (bool, float, vector).  
 
-## 日期: 2025-09-12
+## Date: 2025-09-12
 
-- 決策: 設計生成與波次系統
-- 原因:
-  1. 想測試實際操作生成系統
-  2. 使遊戲可以更多樣
-- 遇到的問題：
-  1. 無法定位到地板，生成時出現碰撞UE自動中斷生成
-     解決方法：用sweap掃描地面高度
-  2. 使用UE_LOG測試多次高度後，仍被UE主動中斷生成
-     解決方法：先用hardcode測試實際能生成的高度後，發現大概是差了AActor的高度
-  3. 無法動態取得欲生成的AActor高度
-     暫時解法：生成dummy取得高度後刪除dummy，問題很多且效能很差
-     目前解法：使用map預先存好測試的高度(HACK)
-  4. 耦合度很高：
-     目前解法：用多播委託與工廠模式取指標。
-- 學習筆記：
-  1. 初次設計架構翻車(雖然會動，但根本無法維護)
+- Decision: Design enemy spawning and wave system  
+- Reasons:  
+  1. Wanted to test practical spawning system implementation  
+  2. Make the game more diverse  
+- Issues Encountered:  
+  1. Could not locate the floor; spawning caused collisions and UE automatically aborted.  
+     Solution: Use sweep to scan ground height.  
+  2. Even after testing multiple heights with UE_LOG, UE still aborted spawning.  
+     Solution: Hardcoded test heights revealed the offset was roughly equal to the AActor’s height.  
+  3. Could not dynamically obtain the height of the AActor to spawn.  
+     Temporary solution: Spawn a dummy to get height then delete it (inefficient and problematic).  
+     Current solution: Use a map to pre-store tested heights (HACK).  
+  4. High coupling.  
+     Current solution: Use multicast delegates and factory pattern to retrieve pointers.  
+- Learning Notes:  
+  1. First architecture design failed (it worked but was unmaintainable).  
 
-## 日期: 2025-09-16
+## Date: 2025-09-16
 
-- 決策: 將邏輯抽象到AIController
-- 原因:
-  1. 增加更多彈性
-  2. 使玩家有機會控制NPC
-  3. 未來可以增加決策樹或狀態機，更容易擴充
-- 遇到的問題:
-  1. 原本NPC砲塔轉向的邏輯是隨時取得玩家座標，並直接向量座標，抽象成接收input就變成要取得一個float，
-     解決方式是：用內建的ATAN2計算偏移量
-  2. 砲塔轉向會overshooting，解決方式是：設定Threshold
+- Decision: Abstract logic into AIController  
+- Reasons:  
+  1. Increase flexibility  
+  2. Allow players to potentially control NPCs  
+  3. Future expansion with decision trees or state machines  
+- Issues Encountered:  
+  1. Original NPC turret rotation logic directly fetched player coordinates and aimed vectors. Abstracting into input required a float.  
+     Solution: Use built-in ATAN2 to calculate offset.  
+  2. Turret rotation overshooting.  
+     Solution: Set a threshold.  
 
-## 日期: 2025-09-23
+## Date: 2025-09-23
 
-- 決策: 使用 Multicast Delegate/工廠模式生成
-- 原因:
-  1. 09-12的版本過多雙向依賴，捲成義大利麵了，自己放個假也看不懂了
-  2. 解耦合 (SpawnManager 不需要知道 GameMode)
-  3. 擴充性 (未來可能有 UI、音效等監聽者)
-  4. 符合 UE5 慣例
-- 學習筆記：
-  1. 閱讀SOLID原則
+- Decision: Use Multicast Delegate / Factory Pattern for spawning  
+- Reasons:  
+  1. The 09-12 version had too many bidirectional dependencies, turned into spaghetti code.  
+  2. Decoupling (SpawnManager doesn’t need to know GameMode).  
+  3. Extensibility (future listeners like UI, audio).  
+  4. Align with UE5 conventions.  
+- Learning Notes:  
+  1. Read SOLID principles.  
 
-## 日期: 2025-10-03
+## Date: 2025-10-03
 
-- 決策: 在TankPawn上改動移動邏輯，交給MovementComponent
-- 原因:
-  1. 原本的向量移動不能上下坡
-  2. 原本的Pawn承擔太多邏輯
-  3. 加入墜落更容易寫
-  4. 未來可加入Pitch Align Slope
-- 遇到的問題:
-  1. 攝影機會在上坡時變得很怪異，原因是SpringArm綁在某個MeshComponent，應綁在root，
-     並將攝影機移動邏輯寫在Tick上，只接收input的yaw。
-  2. 爬上坡後會飄起來，原因是沒有任何可以墜落的邏輯。
-  3. TODO-上坡時不會改變pitch
-- 學習筆記：
-  1. 盡量不要在一個class內寫太多邏輯
-  2. 載具類有更好的基類chaos vehicle
-  3. 大多數的component應該綁在root上，比免過度依賴
+- Decision: Move movement logic from TankPawn to MovementComponent  
+- Reasons:  
+  1. Original vector-based movement couldn’t handle slopes  
+  2. Pawn carried too much logic  
+  3. Easier to implement falling  
+  4. Future support for Pitch Align Slope  
+- Issues Encountered:  
+  1. Camera behaved oddly on slopes because SpringArm was attached to a MeshComponent instead of root. Fixed by attaching to root and handling yaw in Tick.  
+  2. Tank floated after climbing slopes due to missing fall logic.  
+  3. TODO: Pitch not adjusting on slopes.  
+- Learning Notes:  
+  1. Avoid writing too much logic in a single class.  
+  2. Chaos Vehicle provides a better base class for vehicles.  
+  3. Most components should be attached to root to avoid over-dependency.  
 
-## 日期: 2025-10-27
+## Date: 2025-10-27
 
-- 決策: 重寫註解
-- 原因:
-  1. 偷懶沒寫註解，導致自己看不懂自己寫了什麼
-  2. 架構稍微複雜，每次都浪費時間重看過去的自己拉的義大利麵
-- 日誌：
-  開始寫註解與補寫日誌、README
-- 學習筆記：
-  1. 專案要讓未來的自己與別人看得懂
+- Decision: Rewrite comments  
+- Reasons:  
+  1. Skipped writing comments, later couldn’t understand my own code.  
+  2. Architecture became complex, wasted time re-reading spaghetti code.  
+- Log:  
+  Started writing comments and updating logs/README.  
+- Learning Notes:  
+  1. Projects should be understandable to future self and others.  
 
-## 日期: 2025-11-01
+## Date: 2025-11-01
 
-- 決策: 增加GAS
-- 日誌：
-- 1. 增加ASC, ABS 和一個GA_LaserFire
-  2. 在Tank中套用ASC虛擬函數複寫
-  3. 在ASC綁定GA_LaserFire
-  4. 在GA_LaserFire中寫好射線邏輯
-  5. 推上新分枝
-- 遇到的問題：
-  1. 實作了用LineTracing的雷射武器，結果會打到自己
-     解決方法：想起當時在實作Tutorial時，有一個SceneComponent是PorjectileSpawnPoint，用他當起點，寫一個getter解決。
-  2. 目前有自己的heathComponent
-     解決方法：未來再改成GAS的，目前擱置
-  3. 將技能寫死在Pawn上
-     解決方法：再構建一個武器插槽與拾取系統
-- 學習筆記：
-  1. AbilitySystemComponent作為GAS的入口
-  2. AttributeSet存GAS的參數(例如：Health, Ammo)
-  3. 直接在Actor內掛上ASC和ABS，就可以用了
-  4. 記得在Build.cs註冊GAS
-  5. GameplayAbility作為技能實作其中：
-     1. Handle負責識別激活實例
-     2. ActorInfo則是施放者的資訊
-     3. AActor* Avatar = ActorInfo->AvatarActor.Get(); 可以取得施放者的指標
-     4. 結束時呼叫EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-  6. GameplayAbility最好建立BP子類，方便注入指標
-  7. 建立一個繼承自GameEffect的BP，在裡面指定AttributeSet.Attribute
-  8. 在BP的GA內，找到cost標籤，並指向步驟7.GE，這樣就完成消耗設定了
+- Decision: Add GAS  
+- Log:  
+  1. Added ASC, ABS, and GA_LaserFire  
+  2. Applied ASC virtual function overrides in Tank  
+  3. Bound GA_LaserFire to ASC  
+  4. Implemented laser logic in GA_LaserFire  
+  5. Pushed to new branch  
+- Issues Encountered:  
+  1. Laser weapon using LineTracing hit self.  
+     Solution: Used ProjectileSpawnPoint SceneComponent from tutorial as origin, added getter.  
+  2. Currently using custom HealthComponent.  
+     Solution: Will migrate to GAS later, postponed for now.  
+  3. Abilities hardcoded in Pawn.  
+     Solution: Build weapon slot and pickup system.  
+- Learning Notes:  
+  1. AbilitySystemComponent is the entry point for GAS.  
+  2. AttributeSet stores GAS parameters (Health, Ammo).  
+  3. Attach ASC and ABS directly to Actor to use.  
+  4. Register GAS in Build.cs.  
+  5. GameplayAbility implementation:  
+     - Handle identifies activation instance  
+     - ActorInfo contains caster info  
+     - `AActor* Avatar = ActorInfo->AvatarActor.Get();` retrieves caster pointer  
+     - Call `EndAbility(Handle, ActorInfo, ActivationInfo, true, false);` to end ability  
+  6. Create BP subclasses for GameplayAbility for easier pointer injection.  
+  7. Create BP inheriting from GameEffect to specify AttributeSet.Attribute.  
+  8. In BP GA, set cost tag pointing to step 7 GE to configure resource consumption.  
 
-## 日期: 2025-11-07
+## Date: 2025-11-07
 
-- 決策: 重寫RotateSpringArm
-- 原因:
-  1. 時好時壞，有時候會亂轉
-  2. 錯用世界座標與相對座標做轉換
-     ```
-     float CurrentYaw = SpringArmComp->GetRelativeRotation().Yaw
-     
+- Decision: Rewrite RotateSpringArm  
+- Reasons:  
+  1. Behavior inconsistent, sometimes rotated incorrectly  
+  2. Misused world vs relative coordinates  
+     ```cpp
+     float CurrentYaw = SpringArmComp->GetRelativeRotation().Yaw;
      float TargetYaw = TurretMesh->GetComponentRotation().Yaw;
-     ```
-- 日誌：
-  嘗試都修改為GetComponentRotation()
-  
-  新問題是用FMath::FInterpTo 會在轉到底時出現大旋轉
-  
-  先用FMath::FindDeltaAngleDegrees解決
+     ```  
+- Log:  
+  Changed to use GetComponentRotation().  
+  New issue: FMath::FInterpTo caused large rotations at limits.  
+  Solution: Use FMath::FindDeltaAngleDegrees.  
 
-## 日期: 2025-11-09
+## Date: 2025-11-09
 
-- 決策: 製作RotationAlignSlope邏輯
-- 日誌：
-  1. 邏輯理論上能運作，但pitch始終沒跟著動，當時沒搞懂為何
-  2. 後來發現是SlideAlongSurface會把hit洗掉
-  3. 但整個綁定樹和旋轉砲塔實作的效果會很怪
-  4. 把SetUsingAbsoluteLocation/Rotation設定成false即可
-  5. 旋轉要改成AddRelativeRotation
-  6. 仍有許多未知bug
-  
-## 日期: 2025-11-12
+- Decision: Implement RotationAlignSlope logic  
+- Log:  
+  1. Logic theoretically worked, but pitch never updated.  
+  2. Found SlideAlongSurface cleared hit results.  
+  3. Binding tree and turret rotation produced odd effects.  
+  4. Fixed by setting SetUsingAbsoluteLocation/Rotation to false.  
+  5. Changed rotation to AddRelativeRotation.  
+  6. Still many unknown bugs.  
 
-- 決策: 在MovementCoponent內完善RotationAlignSlope邏輯與修正錯誤
-- 日誌：
-  1. 某次微調改了turn的邏輯，原本是動整個Actor，改成了改動底盤的Mesh，讓砲塔始終指著玩家的畫面中心
-  2. 雖然1.讓操控坦克的手感變得很好，但爬坡邏輯壞掉了
-  3. 無論如何只能對著世界x軸朝向的斜坡操作，此外出現孤輪時，會強制轉到世界x軸的方向
-  4. 查了半天才發現，Actor的rotator始終保持在(0, 0, 0)
-  5. 先捨棄掉那個很酷的turn，邏輯就完善了
-  6. 排查中還發現，我在tickcomponent內宣告不少初始變數，一直反覆宣告，所以在MovementComponent內也複寫一個beginplay
-  7. ~~排查中順便把旋轉邏輯改成四元數~~
-  8. ~~TODO : 在不讓邏輯出現怪異問題時，變得像1.~~
-  
+## Date: 2025-11-12
 
-## 日期: 2025-11-16
+- Decision: Refine RotationAlignSlope logic in MovementComponent and fix errors  
+- Log:  
+  1. Modified turn logic: moved chassis mesh instead of entire Actor, turret always aimed at player center.  
+  2. Improved tank handling but broke slope logic.  
+  3. Could only operate on slopes facing world X-axis; single-wheel cases forced rotation to world X-axis.  
+  4. Found Actor rotator always stayed at (0,0,0).  
+  5. Dropped the fancy turn logic, slope logic improved.  
+  6. Found repeated variable declarations in TickComponent; added BeginPlay override in MovementComponent.  
+  7. ~~Temporarily switched rotation logic to quaternions~~  
+  8. ~~TODO: replicate earlier turn logic without breaking slope handling~~  
 
-- 決策: 封裝MovementComponent
-- 日誌：
-  1. 爬坡功能已開發完成，將邏輯封裝增加可讀性
-  2. 分支合併到main
+## Date: 2025-11-16
 
-- 決策: 幫坦克增加尋路邏輯
-- 日誌：
-  1. 先前幫砲塔做的AI控制器可以直接套給坦克，是先前遵守多型開發的意外成果，幾乎不用重寫邏輯，用cast提供邏輯入口後直接寫尋路邏輯
-  2. 先嘗試做了直線找到玩家的邏輯，但實在太詭異
-  3. 而後做了MoveToActor，得先部署NavMeshBoundsVolume，框住範圍就好，但UPawnMovementComponent會讓這方法實作變成瞬間移動，非常詭異
-  4. 要使用UE的A*，必須得用UNavMovementComponent，導致原本繼承自UPawnMovementComponent的邏輯失效
-  5. 重寫MovementComponent，將繼承對象改成UNavMovementComponent，模擬PawnMovementComponent原來的介面與接口(如下)，
-     以及必須把PawnOwner找回，模擬後依賴幾乎不辨，包含外部控制器輸入端注入數值
-    ```
-    	UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
-      void AddInputVector(FVector WorldVector, bool bForce = false);
+- Decision: Encapsulate MovementComponent  
+- Log:  
+  1. Slope climbing feature completed, encapsulated logic for readability.  
+  2. Merged branch into main.  
 
-      UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
-      FVector ConsumeInputVector();
+- Decision: Add pathfinding logic to tank  
+- Log:  
+  1. AIController built for turrets reused for tanks thanks to polymorphic design, minimal rewrites needed. Cast provided entry point for pathfinding logic.  
+  2. First attempt: straight-line pathfinding to player, too odd.  
+  3. Next: MoveToActor with NavMeshBoundsVolume deployed. UPawnMovementComponent caused teleport-like movement.  
+  4. To use UE’s A*, had to switch to UNavMovementComponent, breaking UPawnMovementComponent inheritance.  
+  5. Rewrote MovementComponent to inherit from UNavMovementComponent, simulated PawnMovementComponent interface:  
+     ```cpp
+     UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
+     void AddInputVector(FVector WorldVector, bool bForce = false);
 
-      UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
-      FVector GetPendingInputVector() const { return PendingInputVector; }
-    ```
-  6. 測試完成後，已經會巡路追殺玩家了，但發現會螃蟹走路
-  7. 所以先安排旋轉到玩家方向，不是最佳解，仍有機率看到螃蟹走路，但數量顯著減少
+     UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
+     FVector ConsumeInputVector();
+
+     UFUNCTION(BlueprintCallable, Category = "Pawn|Components|PawnMovement")
+     FVector GetPendingInputVector() const { return PendingInputVector; }
+     ```  
+     Also restored PawnOwner, simulated dependencies including external controller input injection.  
+  6. After testing, tank could pathfind and chase player, but exhibited crab-w
