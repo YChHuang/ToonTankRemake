@@ -2,15 +2,15 @@
 > 基於 UE5 的戰車戰鬥系統，從 Tutorial(Learn C++ from scratch while making 4 fun games in Unreal Engine) 在跟完教學之後並進行多次架構重構與功能擴充
 
 ## 🎮 專案展示
-![Demo](ProjectScreenShots/GameplayShot.png)
+![Demo](../ProjectScreenShots/GameplayShot.png)
 
 *圖 1：封面*
 
-![Demo2](ProjectScreenShots/SlideAndAlignOnSlope.gif)
+![Demo2](../ProjectScreenShots/SlideAndAlignOnSlope.gif)
 
 *圖 2：Tank在斜坡上滑行的畫面*
 
-![Demo3](ProjectScreenShots/SpawnSys_AiCon_MovementComp.gif)
+![Demo3](../ProjectScreenShots/SpawnSys_AiCon_MovementComp.gif)
 
 *圖 3：敵人生成、AiController與MovememtComponent*
 
