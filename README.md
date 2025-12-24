@@ -14,6 +14,8 @@
 
 *Figure 3: Enemy spawning, AiController and MovementComponent*
 
+For Chineses README [ClickHere](DevLogs/DevLog_CHver.md)
+
 ## 📋 Project Overview
 This is a learning-oriented project, mainly aimed at exploring various UE5 features. After finishing the tutorial (which originally only included NPC logic and GameMode), I gradually added the following functionalities (through consulting AI or official documentation):
 - Input system refactoring (Enhanced Input System)
